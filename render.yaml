@@ -1,0 +1,56 @@
+# Render.com Blueprint — Mentora Platform
+# Deploy both backend and frontend with one click:
+#   https://render.com/docs/blueprint-spec
+
+services:
+  # ─── Backend API (Node.js) ───
+  - type: web
+    name: mentora-api
+    runtime: node
+    region: frankfurt          # EU region, close to MongoDB Atlas
+    plan: free                 # Use 'starter' ($7/mo) for production
+    rootDir: backend
+    buildCommand: npm ci --omit=dev
+    startCommand: node src/server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false            # Set manually in Render dashboard
+      - key: JWT_SECRET
+        sync: false
+      - key: B2_KEY_ID
+        sync: false
+      - key: B2_APP_KEY
+        sync: false
+      - key: B2_BUCKET_NAME
+        sync: false
+      - key: B2_ENDPOINT
+        sync: false
+      - key: B2_REGION
+        value: eu-central-003
+      - key: B2_CDN_URL
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false            # Set to your frontend URL after deploy
+
+  # ─── Frontend (Static Site — Vite build) ───
+  - type: web
+    name: mentora
+    runtime: static
+    region: frankfurt
+    plan: free
+    buildCommand: npm ci && npm run build
+    staticPublishPath: build
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=0, must-revalidate
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false            # Set to https://mentora-api.onrender.com after deploy

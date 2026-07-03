@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # Node.js Backend API
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mentora-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      MONGO_URI: ${MONGODB_URI}
+      B2_BUCKET_NAME: ${B2_BUCKET_NAME}
+      B2_KEY_ID: ${B2_KEY_ID}
+      B2_APP_KEY: ${B2_APP_KEY}
+      B2_ENDPOINT: ${B2_ENDPOINT}
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: 8080
+      CORS_ORIGIN: "http://localhost:3000,http://127.0.0.1:3000"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - mentora-network
+    healthcheck:
+      test: wget --quiet --tries=1 --spider http://localhost:8080/api/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Python ML Recommendation API
+  ml-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.ml
+    container_name: mentora-ml-api
+    restart: unless-stopped
+    environment:
+      - FLASK_DEBUG=true
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./src/utils:/app/src/utils
+    networks:
+      - mentora-network
+
+  # React Frontend (Vite)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: mentora-frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_BASE_URL: http://localhost:8080/api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+      - ml-api
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+      - /app/node_modules
+    networks:
+      - mentora-network
+
+networks:
+  mentora-network:
+    driver: bridge

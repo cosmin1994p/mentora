@@ -1,0 +1,7 @@
+Title: VossBoss
+Video fileId: 698c521d5e4d952dec184773
+Video size: 10890021
+GridFS size: 10.39 MB
+GridFS contentType: video/mp4
+GridFS filename: voss_compressed.mp4
+GridFS metadata: {"type":"course_video","compressed":true,"originalSize":10898475}

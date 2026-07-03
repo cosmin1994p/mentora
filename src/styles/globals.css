@@ -1,0 +1,152 @@
+@import "tailwindcss";
+
+@layer base {
+  @font-face {
+    font-family: 'Carella';
+    src: url('/fonts/carella.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  * {
+    @apply antialiased;
+  }
+
+  body {
+    @apply bg-[#002147] text-white;
+    font-family: 'Carella', sans-serif !important;
+  }
+
+  @media (min-width: 1024px) {
+    body {
+      zoom: 0.8;
+    }
+  }
+
+  h1 {
+    @apply text-3xl md:text-5xl lg:text-7xl font-bold;
+  }
+
+  h2 {
+    @apply text-xl md:text-2xl lg:text-3xl font-bold;
+  }
+
+  h3 {
+    @apply text-lg md:text-xl lg:text-2xl font-semibold;
+  }
+
+  h4 {
+    @apply text-base md:text-lg font-semibold;
+  }
+
+  p {
+    @apply text-sm md:text-base leading-relaxed;
+  }
+}
+
+@layer utilities {
+  .font-carella {
+    font-family: 'Carella', sans-serif;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .animate-slideUp {
+    animation: slideUp 0.5s ease-out;
+  }
+
+  .animate-slideDown {
+    animation: slideDown 0.5s ease-out;
+  }
+
+  .animate-scaleIn {
+    animation: scaleIn 0.3s ease-out;
+  }
+
+  .netflix-shadow {
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1),
+                0 2px 4px rgba(0, 0, 0, 0.3),
+                0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .netflix-shadow-lg {
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1),
+                0 8px 16px rgba(0, 0, 0, 0.4),
+                0 16px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  .text-shadow-netflix {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+  }
+
+  .hover-scale {
+    transition: transform 0.3s ease;
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.05);
+  }
+
+  .netflix-card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .netflix-card-hover:hover {
+    transform: scale(1.08);
+    z-index: 10;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

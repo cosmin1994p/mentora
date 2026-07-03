@@ -1,0 +1,3 @@
+ftyp:36b@0
+moov:1461b@36
+FAST_START=YES

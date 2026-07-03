@@ -1,0 +1,7 @@
+media_cache/
+
+
+*.log
+*.mp4
+
+hls_output/

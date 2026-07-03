@@ -1,0 +1,15 @@
+=== Kabat ===
+Size: 3.68 MB
+ContentType: video/mp4
+ChunkSize: 255 KB
+MOOV AT OFFSET 36 = FAST START
+Atoms: ftyp(0KB@0) -> moov(1KB@36) -> moof(1KB@1506) -> mdat(61KB@2806) -> moof(1KB@65364) -> mdat(78KB@66608)
+Speed: 524288 bytes in 8463ms = 60 KB/s
+
+=== Voss ===
+Size: 10.39 MB
+ContentType: video/mp4
+ChunkSize: 255 KB
+MOOV AT OFFSET 36 = FAST START
+Atoms: ftyp(0KB@0) -> moov(1KB@36) -> moof(1KB@1497) -> mdat(124KB@2845)
+Speed: 524288 bytes in 8242ms = 62 KB/s

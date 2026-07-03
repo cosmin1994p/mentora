@@ -1,0 +1,247 @@
+Connected to MongoDB
+
+=== Web Development cu React ===
+ID: 695cdcf27590e6e088b0cbcb
+thumbnail type: object
+thumbnail.fileId: 695cdcf07590e6e088b0cbba
+thumbnail.url: http://localhost:8080/api/files/695cdcf07590e6e088b0cbba
+thumbnail.contentType: NONE
+thumbnail GridFS size: 111.6 KB
+video.fileId: 695cdcef7590e6e088b0cbaf
+video.contentType: NONE
+video.size: NONE
+video GridFS size: 0.75 MB
+videoUrl: http://localhost:8080/api/files/695cdcef7590e6e088b0cbaf
+
+=== Yoga și Wellness ===
+ID: 695cdcf27590e6e088b0cbcc
+thumbnail type: object
+thumbnail.fileId: 695cdcf17590e6e088b0cbbc
+thumbnail.url: http://localhost:8080/api/files/695cdcf17590e6e088b0cbbc
+thumbnail.contentType: NONE
+thumbnail GridFS size: 66.9 KB
+video.fileId: 695cdcef7590e6e088b0cbaf
+video.contentType: NONE
+video.size: NONE
+video GridFS size: 0.75 MB
+videoUrl: http://localhost:8080/api/files/695cdcef7590e6e088b0cbaf
+
+=== Leadership Masterclass ===
+ID: 695cdcf27590e6e088b0cbc8
+thumbnail type: object
+thumbnail.fileId: 69854185c3733886831ae979
+thumbnail.url: /api/media/69854185c3733886831ae979
+thumbnail.contentType: image/jpeg
+thumbnail GridFS size: 151.9 KB
+video.fileId: 695cdcef7590e6e088b0cbaf
+video.contentType: NONE
+video.size: NONE
+video GridFS size: 0.75 MB
+videoUrl: http://localhost:8080/api/files/695cdcef7590e6e088b0cbaf
+
+=== Digital Marketing ===
+ID: 695cdcf27590e6e088b0cbcf
+thumbnail type: object
+thumbnail.fileId: 695cdcf17590e6e088b0cbc2
+thumbnail.url: http://localhost:8080/api/files/695cdcf17590e6e088b0cbc2
+thumbnail.contentType: NONE
+thumbnail GridFS size: 110.0 KB
+video.fileId: 695cdcef7590e6e088b0cbaf
+video.contentType: NONE
+video.size: NONE
+video GridFS size: 0.75 MB
+videoUrl: http://localhost:8080/api/files/695cdcef7590e6e088b0cbaf
+
+=== Creative Writing ===
+ID: 695cdcf27590e6e088b0cbd0
+thumbnail type: object
+thumbnail.fileId: 695cdcf27590e6e088b0cbc4
+thumbnail.url: http://localhost:8080/api/files/695cdcf27590e6e088b0cbc4
+thumbnail.contentType: NONE
+thumbnail GridFS size: 84.3 KB
+video.fileId: 695cdcef7590e6e088b0cbaf
+video.contentType: NONE
+video.size: NONE
+video GridFS size: 0.75 MB
+videoUrl: http://localhost:8080/api/files/695cdcef7590e6e088b0cbaf
+
+=== Music Production ===
+ID: 695cdcf27590e6e088b0cbcd
+thumbnail type: object
+thumbnail.fileId: 695cdcf17590e6e088b0cbbe
+thumbnail.url: http://localhost:8080/api/files/695cdcf17590e6e088b0cbbe
+thumbnail.contentType: NONE
+thumbnail GridFS size: 155.0 KB
+video.fileId: 695cdcef7590e6e088b0cbaf
+video.contentType: NONE
+video.size: NONE
+video GridFS size: 0.75 MB
+videoUrl: http://localhost:8080/api/files/695cdcef7590e6e088b0cbaf
+
+=== Data Science Fundamentals ===
+ID: 695cdcf27590e6e088b0cbd1
+thumbnail type: object
+thumbnail.fileId: 695cdcf27590e6e088b0cbc6
+thumbnail.url: http://localhost:8080/api/files/695cdcf27590e6e088b0cbc6
+thumbnail.contentType: NONE
+thumbnail GridFS size: 133.7 KB
+video.fileId: 695cdcef7590e6e088b0cbaf
+video.contentType: NONE
+video.size: NONE
+video GridFS size: 0.75 MB
+videoUrl: http://localhost:8080/api/files/695cdcef7590e6e088b0cbaf
+
+=== Photography Fundamentals ===
+ID: 695cdcf27590e6e088b0cbc9
+thumbnail type: object
+thumbnail.fileId: 695cdcf07590e6e088b0cbb6
+thumbnail.url: http://localhost:8080/api/files/695cdcf07590e6e088b0cbb6
+thumbnail.contentType: NONE
+thumbnail GridFS size: 142.8 KB
+video.fileId: 695cdcef7590e6e088b0cbaf
+video.contentType: NONE
+video.size: NONE
+video GridFS size: 0.75 MB
+videoUrl: http://localhost:8080/api/files/695cdcef7590e6e088b0cbaf
+
+=== Fitness și Nutriție ===
+ID: 695cdcf27590e6e088b0cbce
+thumbnail type: object
+thumbnail.fileId: 695cdcf17590e6e088b0cbc0
+thumbnail.url: http://localhost:8080/api/files/695cdcf17590e6e088b0cbc0
+thumbnail.contentType: NONE
+thumbnail GridFS size: 125.4 KB
+video.fileId: 695cdcef7590e6e088b0cbaf
+video.contentType: NONE
+video.size: NONE
+video GridFS size: 0.75 MB
+videoUrl: http://localhost:8080/api/files/695cdcef7590e6e088b0cbaf
+
+=== Business Strategy Essentials ===
+ID: 695cdcf27590e6e088b0cbca
+thumbnail type: object
+thumbnail.fileId: 695cdcf07590e6e088b0cbb8
+thumbnail.url: http://localhost:8080/api/files/695cdcf07590e6e088b0cbb8
+thumbnail.contentType: NONE
+thumbnail GridFS size: 110.0 KB
+video.fileId: 695cdcef7590e6e088b0cbaf
+video.contentType: NONE
+video.size: NONE
+video GridFS size: 0.75 MB
+videoUrl: http://localhost:8080/api/files/695cdcef7590e6e088b0cbaf
+
+=== Complete Fitness Masterclass ===
+ID: 696b79ad885611d07b700a9a
+thumbnail type: object
+thumbnail.fileId: NONE
+thumbnail.url: https://images.unsplash.com/photo-1517836357463-d25dfeac3438
+thumbnail.contentType: NONE
+video: undefined
+videoUrl: NONE
+
+=== Yoga for Beginners ===
+ID: 696b79ad885611d07b700a9b
+thumbnail type: object
+thumbnail.fileId: NONE
+thumbnail.url: https://images.unsplash.com/photo-1544367567-0f2fcb009e0b
+thumbnail.contentType: NONE
+video: undefined
+videoUrl: NONE
+
+=== High-Intensity Interval Training ===
+ID: 696b79ad885611d07b700a9c
+thumbnail type: object
+thumbnail.fileId: NONE
+thumbnail.url: https://images.unsplash.com/photo-1534438327276-14e5300c3a48
+thumbnail.contentType: NONE
+video: undefined
+videoUrl: NONE
+
+=== Web Development Bootcamp ===
+ID: 696b79ad885611d07b700a9d
+thumbnail type: object
+thumbnail.fileId: NONE
+thumbnail.url: https://images.unsplash.com/photo-1461749280684-dccba630e2f6
+thumbnail.contentType: NONE
+video: undefined
+videoUrl: NONE
+
+=== Digital Marketing Strategy ===
+ID: 696b79ad885611d07b700a9e
+thumbnail type: object
+thumbnail.fileId: NONE
+thumbnail.url: https://images.unsplash.com/photo-1460925895917-afdab827c52f
+thumbnail.contentType: NONE
+video: undefined
+videoUrl: NONE
+
+=== Data Science with Python ===
+ID: 696b79ad885611d07b700a9f
+thumbnail type: object
+thumbnail.fileId: NONE
+thumbnail.url: https://images.unsplash.com/photo-1518186285589-2f7649de83e0
+thumbnail.contentType: NONE
+video: undefined
+videoUrl: NONE
+
+=== Healthy Cooking Basics ===
+ID: 696b79ad885611d07b700aa0
+thumbnail type: object
+thumbnail.fileId: NONE
+thumbnail.url: https://images.unsplash.com/photo-1556909114-f6e7ad7d3136
+thumbnail.contentType: NONE
+video: undefined
+videoUrl: NONE
+
+=== Business Leadership ===
+ID: 696b79ad885611d07b700aa1
+thumbnail type: object
+thumbnail.fileId: NONE
+thumbnail.url: https://images.unsplash.com/photo-1552664730-d307ca884978
+thumbnail.contentType: NONE
+video: undefined
+videoUrl: NONE
+
+=== Creative Writing Workshop ===
+ID: 696b79ad885611d07b700aa2
+thumbnail type: object
+thumbnail.fileId: NONE
+thumbnail.url: https://images.unsplash.com/photo-1455390582262-044cdead277a
+thumbnail.contentType: NONE
+video: undefined
+videoUrl: NONE
+
+=== Music Production Masterclass ===
+ID: 696b79ad885611d07b700aa3
+thumbnail type: object
+thumbnail.fileId: NONE
+thumbnail.url: https://images.unsplash.com/photo-1511379938547-c1f69419868d
+thumbnail.contentType: NONE
+video: undefined
+videoUrl: NONE
+
+=== KbatNouuKabat ===
+ID: 696bb99cd795d430705b42a5
+thumbnail type: object
+thumbnail.fileId: 696bb99dd795d430705b42b6
+thumbnail.url: /api/media/696bb99dd795d430705b42b6
+thumbnail.contentType: image/jpeg
+thumbnail GridFS size: 89.8 KB
+video.fileId: 696bb99cd795d430705b42a6
+video.contentType: video/mp4
+video.size: 3857196
+video GridFS size: 3.68 MB
+videoUrl: /api/media/696bb99cd795d430705b42a6
+
+=== VossBoss ===
+ID: 698b5dfab9e3cb3245b81a79
+thumbnail type: object
+thumbnail.fileId: 698b5e06b9e3cb3245b81aa5
+thumbnail.url: /api/media/698b5e06b9e3cb3245b81aa5
+thumbnail.contentType: image/png
+thumbnail GridFS size: 1337.6 KB
+video.fileId: 698b5dfab9e3cb3245b81a7a
+video.contentType: video/mp4
+video.size: 10898475
+video GridFS size: 10.39 MB
+videoUrl: /api/media/698b5dfab9e3cb3245b81a7a

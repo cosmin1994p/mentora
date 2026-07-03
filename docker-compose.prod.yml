@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # Node.js Backend API
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mentora-api-prod
+    restart: always
+    environment:
+      NODE_ENV: production
+      MONGO_URI: ${MONGO_URI}
+      B2_BUCKET: ${B2_BUCKET}
+      B2_APP_KEY: ${B2_APP_KEY}
+      B2_APP_KEY_ID: ${B2_APP_KEY_ID}
+      JWT_SECRET: ${JWT_SECRET}
+      BACKEND_PORT: 5000
+      CORS_ORIGIN: http://localhost:80 # Adjust to your domain if deployed
+    ports:
+      - "5000:5000"
+    networks:
+      - mentora-network
+    healthcheck:
+      test: wget --quiet --tries=1 --spider http://localhost:5000/api/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # React Frontend (Nginx)
+  frontend:
+    build:
+      context: ./
+      dockerfile: Dockerfile.prod.frontend
+    container_name: mentora-frontend-prod
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    networks:
+      - mentora-network
+
+networks:
+  mentora-network:
+    driver: bridge

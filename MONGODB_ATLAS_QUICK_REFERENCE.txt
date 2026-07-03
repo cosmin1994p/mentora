@@ -1,0 +1,185 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                ║
+║                  🎯 MONGODB ATLAS - QUICK REFERENCE CARD 🎯                   ║
+║                                                                                ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ CONNECTION DETAILS                                                           ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+Database:    masterclass
+Cluster:     mongo.utaytsq.mongodb.net
+Username:    GHINEA_TUDOR
+Password:    stud
+Status:      🟢 CONNECTED
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ QUICK COMMANDS                                                               ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+Verify Connection:
+   python verify_mongodb.py
+
+Start API:
+   python src/utils/advanced_ml_recommendation_api.py
+
+Test Health:
+   curl http://localhost:5000/api/health
+
+List Moods:
+   curl http://localhost:5000/api/moods
+
+Install Dependencies:
+   pip install -r src/utils/requirements_ml.txt
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ API ENDPOINTS                                                                ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+GET  /api/health
+     Health check - confirms API is running
+
+GET  /api/moods
+     Get list of available moods (10 moods)
+
+POST /api/recommendations
+     Get personalized recommendations for a user
+
+POST /api/recommendations/by-mood
+     Get recommendations filtered by specific mood
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ DATABASE COLLECTIONS                                                         ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+user_profiles
+   • Stores: User data, preferences, mood history
+   • Indexes: user_id, current_mood, last_active
+
+courses
+   • Stores: Course information, metadata, ratings
+   • Indexes: id, category, tags, rating
+
+recommendations_cache
+   • Stores: Cached recommendations (24h TTL)
+   • Indexes: user_id, created_at
+
+user_interactions
+   • Stores: User activity logs (enrollments, completions)
+   • Indexes: user_id, course_id, timestamp
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ AVAILABLE MOODS                                                              ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+🔥 ENERGETIC      💪 MOTIVATED      😕 CONFUSED
+😌 CALM          🧘 RELAXED        ✨ INSPIRED
+🎨 CREATIVE       📚 CURIOUS        😰 STRESSED
+💻 FOCUSED        
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ CONFIGURATION FILES                                                          ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+.env.ml
+   Environment variables for MongoDB & API
+   ⚠️  Keep PRIVATE - don't commit to version control!
+
+verify_mongodb.py
+   Verification script - test your setup
+
+MONGODB_ATLAS_SETUP.md
+   Complete setup and usage guide
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ PYTHON USAGE                                                                 ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+import sys
+sys.path.insert(0, 'src/utils')
+from recommendation_integration import StreamclassRecommendationService
+
+service = StreamclassRecommendationService()
+
+# Get recommendations
+recs = service.get_recommendations(
+    user_id="user_123",
+    current_mood="creative",
+    num_recommendations=5
+)
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ REACT USAGE                                                                  ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+import { useRecommendations } from '@/utils/mlRecommendations.integration';
+
+const { recommendations, loading, fetchRecommendations } = 
+  useRecommendations('user_123');
+
+useEffect(() => {
+  fetchRecommendations('creative', [], [], {});
+}, []);
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ API REQUEST EXAMPLE                                                          ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+POST http://localhost:5000/api/recommendations
+
+{
+  "userId": "student_123",
+  "currentMood": "creative",
+  "enrolledCourses": [],
+  "completedCourses": [],
+  "courseRatings": {},
+  "num_recommendations": 5
+}
+
+Response includes:
+  • course_id, title, category
+  • description, difficulty, rating
+  • scores breakdown (mood, personalization, similarity, etc.)
+  • final_score (0-1, displayed as percentage)
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ TROUBLESHOOTING                                                              ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+Connection Failed?
+  → Verify .env.ml exists
+  → Check MongoDB Atlas cluster is running
+  → Verify credentials in .env.ml
+  → Check internet connection
+
+API Won't Start?
+  → Run: python verify_mongodb.py
+  → Check port 5000 is available
+  → Verify Flask is installed
+
+API Returns 500 Error?
+  → Check connection: python verify_mongodb.py
+  → Check request body format
+  → Look at API logs for details
+
+
+═════════════════════════════════════════════════════════════════════════════════
+
+Need more help? Read:
+  • MONGODB_ATLAS_SETUP.md (complete guide)
+  • README_ML_ENGINE.md (engine overview)
+  • ML_QUICK_START.md (quick reference)
+
+═════════════════════════════════════════════════════════════════════════════════
+Setup Date: December 26, 2025 | Status: ✅ VERIFIED & READY
+═════════════════════════════════════════════════════════════════════════════════
