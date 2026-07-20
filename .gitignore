@@ -31,6 +31,9 @@ src/utils/*.log
 .vscode/
 .idea/
 
+# Local MongoDB data (Cursor Cloud dev)
+.mongodb/
+
 # Backend env
 backend/.env
 backend/.env.ml
