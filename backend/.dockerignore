@@ -1,6 +1,13 @@
 node_modules
-.env
-.DS_Store
+npm-debug.log
 .git
 .gitignore
-*.log
+*.md
+.env
+.env.*
+media_cache
+test_*.js
+check_*.js
+cleanup*.js
+seed*.js
+fix-*.js

@@ -11,7 +11,11 @@ const VITE_API_BASE = (typeof import.meta !== 'undefined' && (import.meta as any
 // Dynamic API URL for local development to allow access from other devices
 export const getApiUrl = (): string => {
     if (VITE_API_BASE) {
-        // Docker / explicit env var — use it directly, appending /api if needed
+        // Relative path — production nginx proxy (e.g. VITE_API_BASE_URL=/api)
+        if (VITE_API_BASE.startsWith('/')) {
+            return VITE_API_BASE.endsWith('/api') ? VITE_API_BASE : `${VITE_API_BASE}/api`;
+        }
+        // Absolute URL — Docker or explicit env var
         return VITE_API_BASE.endsWith('/api') ? VITE_API_BASE : `${VITE_API_BASE}/api`;
     }
     // Local dev fallback — construct from current hostname + backend port
