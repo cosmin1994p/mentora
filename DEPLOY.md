@@ -177,6 +177,21 @@ docker compose -f docker-compose.prod.yml logs mongo api
 
 Check `MONGO_APP_USER` / `MONGO_APP_PASSWORD` match what was created in `docker/mongo-init/01-init-app-user.sh` on first boot.
 
+If your Mongo password contains special characters (`@`, `#`, `%`, `+`, etc.), URL-encode them in the connection string or use a password without those characters.
+
+### `mentora-api` unhealthy / dependency failed to start
+
+```bash
+docker logs mentora-api --tail 80
+docker inspect mentora-api --format='{{json .State.Health}}'
+```
+
+Common causes:
+
+1. **MongoDB auth** — look for `MongoDB connection failed` in API logs; fix `MONGO_APP_*` in `.env`.
+2. **Health check too early** — wait 90s after `up`; or pull the latest compose file (healthcheck uses Node, not `wget`).
+3. **Crash loop** — repeated `MongoDB connection failed` then exit; API never stays up long enough to pass health.
+
 If you restored **after** init but the dump includes its own users, you may need to align credentials with the dump or re-create the app user via `mongosh` as root.
 
 ### Cannot pull images from GHCR
