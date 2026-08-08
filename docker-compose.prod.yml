@@ -1,46 +1,119 @@
-version: '3.8'
+# Mentora — production stack (Linux server)
+#
+# Pull pre-built images (CI) and run:
+#   docker compose -f docker-compose.prod.yml pull
+#   docker compose -f docker-compose.prod.yml up -d
+#
+# First-time DB restore (empty volume only):
+#   cp masterclass.archive data/dump/masterclass.archive
+#   docker compose -f docker-compose.prod.yml --profile restore run --rm mongo-restore
+
+name: mentora
 
 services:
-  # Node.js Backend API
+  mongo:
+    image: mongo:7
+    container_name: mentora-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_APP_USER: ${MONGO_APP_USER}
+      MONGO_APP_PASSWORD: ${MONGO_APP_PASSWORD}
+      MONGO_APP_DATABASE: ${MONGO_DATABASE:-masterclass}
+    volumes:
+      - mongo_data:/data/db
+      - ./docker/mongo-init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - mentora-internal
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "--quiet",
+          "-u",
+          "${MONGO_ROOT_USER}",
+          "-p",
+          "${MONGO_ROOT_PASSWORD}",
+          "--authenticationDatabase",
+          "admin",
+          "--eval",
+          "db.adminCommand('ping').ok",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    # No host ports — MongoDB is internal-only.
+
   api:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: mentora-api-prod
-    restart: always
+    image: ${API_IMAGE:-ghcr.io/cosmin1994p/mentora-api:latest}
+    container_name: mentora-api
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
     environment:
       NODE_ENV: production
-      MONGO_URI: ${MONGO_URI}
-      B2_BUCKET: ${B2_BUCKET}
-      B2_APP_KEY: ${B2_APP_KEY}
-      B2_APP_KEY_ID: ${B2_APP_KEY_ID}
+      PORT: 8080
+      MONGODB_URI: mongodb://${MONGO_APP_USER}:${MONGO_APP_PASSWORD}@mongo:27017/${MONGO_DATABASE:-masterclass}?authSource=${MONGO_DATABASE:-masterclass}
       JWT_SECRET: ${JWT_SECRET}
-      BACKEND_PORT: 5000
-      CORS_ORIGIN: http://localhost:80 # Adjust to your domain if deployed
-    ports:
-      - "5000:5000"
+      DISABLE_ML_SERVER: "true"
+      B2_KEY_ID: ${B2_KEY_ID}
+      B2_APP_KEY: ${B2_APP_KEY}
+      B2_BUCKET_NAME: ${B2_BUCKET_NAME}
+      B2_ENDPOINT: ${B2_ENDPOINT}
+      B2_REGION: ${B2_REGION:-eu-central-003}
+      B2_CDN_URL: ${B2_CDN_URL:-}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admintudy}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admintudy}
     networks:
-      - mentora-network
+      - mentora-internal
     healthcheck:
-      test: wget --quiet --tries=1 --spider http://localhost:5000/api/health || exit 1
+      test: wget --quiet --tries=1 --spider http://localhost:8080/api/health || exit 1
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
+      start_period: 40s
+    # No host ports — API is reached via frontend nginx /api proxy.
 
-  # React Frontend (Nginx)
   frontend:
-    build:
-      context: ./
-      dockerfile: Dockerfile.prod.frontend
-    container_name: mentora-frontend-prod
-    restart: always
-    ports:
-      - "80:80"
+    image: ${FRONTEND_IMAGE:-ghcr.io/cosmin1994p/mentora-frontend:latest}
+    container_name: mentora-frontend
+    restart: unless-stopped
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+    ports:
+      - "${HTTP_PORT:-80}:80"
     networks:
-      - mentora-network
+      - mentora-internal
+
+  # One-shot restore — run manually with --profile restore
+  mongo-restore:
+    profiles: ["restore"]
+    image: mongo:7
+    container_name: mentora-mongo-restore
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      MONGO_ROOT_USER: ${MONGO_ROOT_USER}
+      MONGO_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_DATABASE: ${MONGO_DATABASE:-masterclass}
+      RESTORE_ARCHIVE: ${RESTORE_ARCHIVE:-/dump/masterclass.archive}
+      RESTORE_GZIP: ${RESTORE_GZIP:-false}
+    volumes:
+      - ./data/dump:/dump:ro
+      - ./docker/mongo-restore.sh:/mongo-restore.sh:ro
+    entrypoint: ["/bin/bash", "/mongo-restore.sh"]
+    networks:
+      - mentora-internal
 
 networks:
-  mentora-network:
+  mentora-internal:
     driver: bridge
+
+volumes:
+  mongo_data:

@@ -352,8 +352,18 @@ const startServer = async () => {
   try {
     await connectDB();
 
-    // Start ML Server automatically
-    await startMLServer();
+    const skipMlSpawn =
+      process.env.DISABLE_ML_SERVER === 'true' || Boolean(process.env.ML_API_URL);
+
+    if (skipMlSpawn) {
+      console.log(
+        process.env.ML_API_URL
+          ? `ML server auto-start skipped (ML_API_URL=${process.env.ML_API_URL})`
+          : 'ML server auto-start skipped (DISABLE_ML_SERVER=true)'
+      );
+    } else {
+      await startMLServer();
+    }
 
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`
@@ -363,7 +373,7 @@ const startServer = async () => {
 ║   Server:    http://localhost:${PORT}                                      ║
 ║   Database:  ${mongoose.connection.db?.databaseName || 'masterclass'}                                                ║
 ║   GridFS:    ✓ Initialized                                                ║
-║   ML API:    http://localhost:5001/api                                    ║
+║   ML API:    ${skipMlSpawn ? 'disabled (use ML_API_URL or re-enable spawn)'.padEnd(42) : 'http://localhost:5001/api'.padEnd(42)} ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║   API Endpoints:                                                          ║
 ║   • Auth:          /api/auth/*                                            ║
