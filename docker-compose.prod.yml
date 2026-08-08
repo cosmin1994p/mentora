@@ -103,7 +103,7 @@ services:
       MONGO_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
       MONGO_DATABASE: ${MONGO_DATABASE:-masterclass}
       RESTORE_ARCHIVE: ${RESTORE_ARCHIVE:-/dump/masterclass.archive}
-      RESTORE_GZIP: ${RESTORE_GZIP:-false}
+      RESTORE_GZIP: ${RESTORE_GZIP:-true}
     volumes:
       - ./data/dump:/dump:ro
       - ./docker/mongo-restore.sh:/mongo-restore.sh:ro
