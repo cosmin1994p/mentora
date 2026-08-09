@@ -465,46 +465,81 @@ export default function App() {
         })
         .catch(err => console.error('Failed to fetch enrolled courses:', err));
     }
+  }, []);
 
-    // --- SETUP SSE FOR REALTIME UPDATES ---
-    const sseUrl = `${API_BASE_URL.replace('/api', '')}/api/events/stream`;
-    const eventSource = new EventSource(sseUrl);
+  // SSE — admin only (course package updates). Regular users don't need a permanent stream.
+  useEffect(() => {
+    if (!isAuthenticated || userProfile?.role !== 'admin') {
+      return;
+    }
 
-    eventSource.onopen = () => console.log('SSE connection opened');
-    eventSource.onerror = (error) => console.error('SSE Error:', error);
+    const sseUrl = `${API_BASE_URL.replace(/\/$/, '')}/events/stream`;
+    let eventSource: EventSource | null = null;
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    let closed = false;
+    let failures = 0;
 
-    eventSource.addEventListener('course_updated', (e) => {
-      console.log('SSE Received course_updated event:', e.data);
-      // Re-fetch courses dynamically
-      loadCoursesFromAPI().then(() => {
-        // We also need to re-fetch enrolled courses just in case it overrides them
-        if (authToken) {
-          apiService.user.getEnrolledCourses().then(data => {
-            let coursesArray: any[] = [];
-            if (Array.isArray(data)) {
-              coursesArray = data;
-            } else if ((data as any)?.enrolledCourses && Array.isArray((data as any).enrolledCourses)) {
-              coursesArray = (data as any).enrolledCourses;
-            }
-            if (coursesArray.length > 0) {
-              const enrolledIds = coursesArray.map((c: any) => (typeof c === 'object' ? (c.id || c._id) : c));
-              setCourses((currentCourses: Course[]) =>
-                currentCourses.map(course => ({
-                  ...course,
-                  enrolled: enrolledIds.includes(course.id)
-                }))
-              );
-            }
-          }).catch(() => {});
+    const connect = () => {
+      if (closed) return;
+
+      eventSource = new EventSource(sseUrl);
+
+      eventSource.onopen = () => {
+        failures = 0;
+      };
+
+      eventSource.onerror = () => {
+        if (closed) return;
+        failures += 1;
+        eventSource?.close();
+
+        // Back off instead of browser default aggressive reconnect + console spam
+        const delay = Math.min(30000, 2000 * failures);
+        if (failures <= 3) {
+          console.warn(`SSE disconnected, retry in ${delay}ms`);
         }
+        reconnectTimer = setTimeout(connect, delay);
+      };
+
+      eventSource.addEventListener('course_updated', () => {
+        apiService.courses.getAll()
+          .then((response) => {
+            const coursesData = Array.isArray(response)
+              ? response
+              : (response as any)?.data || (response as any)?.courses || [];
+            if (!Array.isArray(coursesData) || coursesData.length === 0) return;
+
+            setCourses((currentCourses) => {
+              const updates = new Map(
+                coursesData.map((c: any) => {
+                  const id = c?._id?.toString?.() || c?.id;
+                  return [id, c];
+                })
+              );
+              return currentCourses.map((course) => {
+                const fresh = updates.get(course.id);
+                if (!fresh) return course;
+                return {
+                  ...course,
+                  packageTiers: fresh.packageTiers ?? course.packageTiers,
+                  hlsReady: fresh.hlsReady ?? course.hlsReady,
+                  hlsUrl: fresh.hlsUrl ? rewriteUrl(fresh.hlsUrl) : course.hlsUrl,
+                };
+              });
+            });
+          })
+          .catch(() => {});
       });
-    });
+    };
+
+    connect();
 
     return () => {
-      console.log('Closing SSE connection');
-      eventSource.close();
+      closed = true;
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      eventSource?.close();
     };
-  }, []);
+  }, [isAuthenticated, userProfile?.role]);
 
   useEffect(() => {
     if (!isAuthenticated || !userProfile?.email) {

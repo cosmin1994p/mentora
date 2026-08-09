@@ -1,9 +1,11 @@
 /**
  * Server-Sent Events (SSE) Service
- * Used for broadcasting real-time updates to connected clients.
+ * Used for broadcasting real-time updates to connected clients (admin UI).
  */
 
 let clients = [];
+
+const HEARTBEAT_MS = 25000;
 
 /**
  * Register a new client for SSE
@@ -11,29 +13,31 @@ let clients = [];
  * @param {Object} res - Express response object
  */
 export const sseHandler = (req, res) => {
-  // Set headers for SSE
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive',
-    // Allow CORS if needed, but standard CORS middleware in server.js should handle it
+    'Cache-Control': 'no-cache, no-transform',
+    Connection: 'keep-alive',
+    'X-Accel-Buffering': 'no',
   });
 
-  // Send initial connected event
   res.write('event: connected\n');
   res.write(`data: ${JSON.stringify({ message: 'SSE connection established' })}\n\n`);
 
-  // Add this client to the clients array
   const clientId = Date.now();
-  const newClient = {
-    id: clientId,
-    res
-  };
+  const newClient = { id: clientId, res };
   clients.push(newClient);
 
-  // When client closes connection, remove them from the array
+  const heartbeat = setInterval(() => {
+    try {
+      res.write(': heartbeat\n\n');
+    } catch {
+      clearInterval(heartbeat);
+    }
+  }, HEARTBEAT_MS);
+
   req.on('close', () => {
-    clients = clients.filter(client => client.id !== clientId);
+    clearInterval(heartbeat);
+    clients = clients.filter((client) => client.id !== clientId);
   });
 };
 
@@ -43,7 +47,7 @@ export const sseHandler = (req, res) => {
  * @param {Object} data - The event payload
  */
 export const broadcastEvent = (event, data) => {
-  clients.forEach(client => {
+  clients.forEach((client) => {
     try {
       client.res.write(`event: ${event}\n`);
       client.res.write(`data: ${JSON.stringify(data)}\n\n`);
