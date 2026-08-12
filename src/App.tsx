@@ -20,7 +20,7 @@ import { UpgradeModal } from './components/UpgradeModal';
 import { SpeakersTab } from './components/SpeakersTab';
 import { SplashScreen } from './components/SplashScreen';
 import { generateMLRecommendations } from './utils/mlRecommendations';
-import { getEmotionBasedRecommendations, recordCourseInteraction, emotionRecommendationService } from './utils/emotionRecommendationService';
+import { recordCourseInteraction } from './utils/emotionRecommendationService';
 import { apiService } from './utils/api';
 import { Toaster } from 'sonner';
 import { API_BASE_URL, rewriteUrl } from './config';
@@ -627,12 +627,6 @@ export default function App() {
   // Generate recommendations when profile, courses, or mood/energy change
   useEffect(() => {
     if (userProfile && courses.length > 0 && recommendedCourses.length === 0) {
-      console.log('🔄 Regenerating course recommendations:', {
-        mood: userProfile.dailyMood?.mood,
-        energy: userProfile.dailyMood?.energy,
-        interests: userProfile.initialQuestionnaire?.interests?.length,
-        coursesCount: courses.length
-      });
       generateRecommendations();
     } else if (courses.length > 0 && !userProfile && profileLoaded && recommendedCourses.length === 0) {
       // Only show unscored guest fallback after we're sure no profile is coming
@@ -656,18 +650,16 @@ export default function App() {
     }
   }, [courses]);
 
-  // Regenerate reel recommendations when reels array changes OR when mood/energy changes OR when profile loads
+  // Regenerate reel recommendations when reels or mood/interests change
+  const reelsRecInProgress = useRef(false);
   useEffect(() => {
-    if (userProfile && Array.isArray(reels) && reels.length > 0) {
-      console.log('🔄 Regenerating reel recommendations:', {
-        reelsCount: reels.length,
-        mood: userProfile.dailyMood?.mood,
-        energy: userProfile.dailyMood?.energy,
-        interests: userProfile.initialQuestionnaire?.interests
-      });
-      generateReelRecommendations(userProfile);
-    }
-  }, [reels.length, userProfile, userProfile?.dailyMood?.mood, userProfile?.dailyMood?.energy]);
+    if (!userProfile || !Array.isArray(reels) || reels.length === 0) return;
+    if (reelsRecInProgress.current) return;
+
+    reelsRecInProgress.current = true;
+    generateReelRecommendations(userProfile);
+    reelsRecInProgress.current = false;
+  }, [reels.length, userProfile?.dailyMood?.mood, userProfile?.dailyMood?.energy, interestsKey]);
 
   // Guard against duplicate recommendation generation (useEffect can fire twice)
   const recommendationsInProgress = useRef(false);
@@ -675,7 +667,6 @@ export default function App() {
   const generateRecommendations = async (profileOverride?: UserProfile) => {
     // Prevent concurrent/duplicate calls — only one generation at a time
     if (recommendationsInProgress.current) {
-      console.log('⏭️ Skipping duplicate generateRecommendations call');
       return;
     }
     recommendationsInProgress.current = true;
@@ -691,17 +682,11 @@ export default function App() {
     }
 
     try {
-      // Use ONLY the local deterministic algorithm — ML endpoint is non-deterministic
-      // and returns inconsistent results (2-4 courses) causing different recommendations per refresh
-      console.log('🔵 Using deterministic local algorithm for recommendations');
       generateLocalRecommendations(profile);
     } finally {
       setRecommendationsLoading(false);
       recommendationsInProgress.current = false;
     }
-
-    // Generate reel recommendations (always local for now)
-    generateReelRecommendations(profile);
   };
 
 
@@ -797,9 +782,6 @@ export default function App() {
       getMatchedTagsForDomain(userDomain).forEach(t => expandedDomainTags.add(t));
     }
 
-    console.log('📊 Expanded interest tags:', [...expandedInterestTags]);
-    console.log('📊 Expanded domain tags:', [...expandedDomainTags]);
-
     // Score courses based on multiple factors
     const scoredCourses = courses
       .filter(course => {
@@ -893,13 +875,6 @@ export default function App() {
         return a.course.title.localeCompare(b.course.title);
       });
 
-    // Log top recommendations (clean summary)
-    console.log('📊 Top recommended courses:', scoredCourses.slice(0, 5).map(c => ({
-      title: c.course.title,
-      score: c.score.toFixed(2),
-      date: new Date(c.course.createdAt || 0).toLocaleDateString()
-    })));
-
     const finalRecs = scoredCourses.length > 0
       ? scoredCourses.map(item => item.course)
       : (Array.isArray(courses) ? courses.slice(0, 10) : []);
@@ -971,18 +946,6 @@ export default function App() {
 
     // Create a map of courseId -> course for quick lookup
     const courseMap = new Map(courses.map(c => [c.id, c]));
-
-
-    console.log('📊 Reel recommendation inputs:', {
-      mood,
-      emotionKey,
-      energy,
-      userInterests,
-      userDomain,
-      enrolledCount: enrolledCourses.length,
-      reelsCount: reels.length,
-      coursesWithAffinity: courses.filter(c => c.emotionAffinity).length
-    });
 
     // Score reels based on their parent course's emotionAffinity + user profile
     const scoredReels = reels.map(reel => {
@@ -1083,29 +1046,6 @@ export default function App() {
       .sort((a, b) => b.score - a.score)
       .slice(0, 8)
       .map(item => item.reel);
-
-    console.log('📊 Reel scores (top 10):', scoredReels.sort((a, b) => b.score - a.score).slice(0, 10).map(s => ({
-      title: s.reel.title,
-      score: s.score.toFixed(1),
-      hasParent: s.hasParentCourse,
-      createdAt: s.reel.createdAt ? new Date(s.reel.createdAt).toLocaleDateString() : 'no date',
-      category: s.parentCourse?.category || s.reel.category || 'none'
-    })));
-
-    // Log new reels specifically
-    const newReels = scoredReels.filter(s => {
-      if (!s.reel.createdAt) return false;
-      const age = Date.now() - new Date(s.reel.createdAt).getTime();
-      return age < 24 * 60 * 60 * 1000; // Created today
-    });
-    if (newReels.length > 0) {
-      console.log('🆕 New reels (created today):', newReels.map(s => ({
-        title: s.reel.title,
-        score: s.score.toFixed(1)
-      })));
-    }
-
-    console.log('✅ Recommended reels:', sortedReels.length);
 
     setRecommendedReels(sortedReels);
   };
@@ -1525,7 +1465,6 @@ export default function App() {
       }
 
       // Pass the new profile directly to avoid stale closure issues
-      console.log('🔄 Regenerating recommendations with new profile data...');
       generateRecommendations(updatedProfile);
       
       // Reload the page to ensure all components (including Home) get the new package restrictions

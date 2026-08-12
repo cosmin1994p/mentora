@@ -10,17 +10,12 @@
 
 import { Course, UserProfile } from '../App';
 
-// API Configuration
-// API Configuration
-const getMlApiUrl = (): string => {
-  if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname;
-    return `http://${hostname}:5001`;
-  }
-  return 'http://localhost:5001';
-};
+// API Configuration — ML runs as a separate service only when VITE_ML_API_URL is set (dev).
+// In production Docker we use the Node API + local fallback; never call :5001 from the browser.
+const ML_API_BASE_URL =
+  (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_ML_API_URL) || '';
 
-const ML_API_BASE_URL = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_ML_API_URL) || getMlApiUrl();
+const ML_ENABLED = Boolean(ML_API_BASE_URL);
 
 // Types
 export interface MoodData {
@@ -117,7 +112,9 @@ class EmotionRecommendationService {
 
   constructor(baseUrl: string = ML_API_BASE_URL) {
     this.baseUrl = baseUrl;
-    this.checkHealth();
+    if (ML_ENABLED) {
+      this.checkHealth();
+    }
   }
 
   /**
@@ -144,7 +141,9 @@ class EmotionRecommendationService {
       this.isOnline = false;
       return false;
     } catch (error) {
-      console.warn('ML API not available, using fallback recommendations');
+      if (ML_ENABLED) {
+        console.warn('ML API not available, using fallback recommendations');
+      }
       this.isOnline = false;
       return false;
     }
@@ -158,6 +157,10 @@ class EmotionRecommendationService {
     courses: Course[],
     numRecommendations: number = 10
   ): Promise<Course[]> {
+    if (!ML_ENABLED) {
+      return this.getLocalRecommendations(userProfile, courses, numRecommendations);
+    }
+
     // Check API availability
     if (!this.isOnline) {
       await this.checkHealth();
