@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const ML_API_BASE_URL = process.env.ML_API_URL || 'http://localhost:5001/api';
+const ML_API_BASE_URL = process.env.ML_API_URL || '';
+const ML_ENABLED = Boolean(ML_API_BASE_URL);
 
 class MLRecommendationService {
   constructor() {
@@ -13,6 +14,9 @@ class MLRecommendationService {
    * Call Python ML engine for emotion-based recommendations
    */
   async getEmotionBasedRecommendations(userData) {
+    if (!ML_ENABLED) {
+      return { success: false, recommendations: [] };
+    }
     try {
       const response = await this.retryRequest(async () => {
         return await axios.post(`${this.mlApiUrl}/recommendations`, {
@@ -44,6 +48,9 @@ class MLRecommendationService {
    * Get health status of ML API
    */
   async checkMLServiceHealth() {
+    if (!ML_ENABLED) {
+      return false;
+    }
     try {
       const response = await axios.get(`${this.mlApiUrl}/health`, {
         timeout: 5000
@@ -59,6 +66,9 @@ class MLRecommendationService {
    * Record user interaction with course for ML model training
    */
   async recordInteraction(userId, courseId, actionType, emotion) {
+    if (!ML_ENABLED) {
+      return;
+    }
     try {
       await this.retryRequest(async () => {
         return await axios.post(`${this.mlApiUrl}/interactions`, {

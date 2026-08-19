@@ -59,7 +59,6 @@ services:
       PORT: 8080
       MONGODB_URI: mongodb://${MONGO_APP_USER}:${MONGO_APP_PASSWORD}@mongo:27017/${MONGO_DATABASE:-masterclass}?authSource=${MONGO_DATABASE:-masterclass}
       JWT_SECRET: ${JWT_SECRET}
-      DISABLE_ML_SERVER: "true"
       B2_KEY_ID: ${B2_KEY_ID}
       B2_APP_KEY: ${B2_APP_KEY}
       B2_BUCKET_NAME: ${B2_BUCKET_NAME}

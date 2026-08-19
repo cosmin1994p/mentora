@@ -2,7 +2,6 @@ node_modules
 npm-debug.log
 .git
 .gitignore
-*.md
 .env
 .env.*
 !.env.production.example
@@ -13,7 +12,3 @@ dist
 data
 backend/node_modules
 backend/media_cache
-react_native_app
-flutter_app
-**/*_COMPLETE.md
-**/*_SUMMARY.md
