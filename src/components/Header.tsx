@@ -17,6 +17,7 @@ const FALLBACK_PROFILE: UserProfile = {
   name: 'Mentora',
   email: '',
   avatar: '/logo-header.jpg',
+  bio: '',
   role: 'user',
   packageTier: 'free',
 };
