@@ -55,7 +55,7 @@ export function VideoPlayer({ course, onClose, onProgressUpdate, isMinimized: ex
   };
 
   // Determine which URL to use: HLS preferred, fallback to MP4
-  const videoUrl = toAbsoluteUrl(course.videoUrl) || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+  const videoUrl = toAbsoluteUrl(course.videoUrl);
   const cdnBase = inferCdnBaseFromVideoUrl(videoUrl);
   const inferredB2HlsUrl = cdnBase ? `${cdnBase}/hls/${course.id}/master.m3u8` : null;
 
@@ -171,12 +171,13 @@ export function VideoPlayer({ course, onClose, onProgressUpdate, isMinimized: ex
           if (!isMounted) return;
           if (data.fatal) {
             console.error('[HLS] Fatal error:', data.type, data.details);
-            // Fallback to direct MP4
             hls?.destroy();
-            video.src = videoUrl;
-            video.play()
-              .then(() => isMounted && setIsPlaying(true))
-              .catch(() => isMounted && setIsPlaying(false));
+            if (videoUrl) {
+              video.src = videoUrl;
+              video.play()
+                .then(() => isMounted && setIsPlaying(true))
+                .catch(() => isMounted && setIsPlaying(false));
+            }
           }
         });
 
@@ -193,8 +194,7 @@ export function VideoPlayer({ course, onClose, onProgressUpdate, isMinimized: ex
           }
         }, { once: true });
 
-      } else {
-        // Fallback: raw MP4
+      } else if (videoUrl) {
         video.src = videoUrl;
         video.addEventListener('canplay', () => {
           if (isMounted) {

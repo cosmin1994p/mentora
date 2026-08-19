@@ -93,9 +93,9 @@ export const getAllCourses = async (req, res) => {
       else if (course.video?.fileId) {
         videoUrl = `${backendUrl}/api/media/${course.video.fileId}`;
       }
-      // PRIORITY 4: Fallback for courses without videos
+      // PRIORITY 4: No video available
       else {
-        videoUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+        videoUrl = null;
       }
 
       // Lock Logic based on Package
