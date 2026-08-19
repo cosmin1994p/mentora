@@ -92,7 +92,7 @@ export function LessonPlayer({
   };
 
   // Determine which URL to use: HLS preferred, fallback to MP4
-  const videoUrl = toAbsoluteUrl(lesson.videoUrl) || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+  const videoUrl = toAbsoluteUrl(lesson.videoUrl);
   const cdnBase = inferCdnBaseFromVideoUrl(videoUrl);
   const inferredB2HlsUrl = cdnBase ? `${cdnBase}/hls/${courseId}/master.m3u8` : null;
 
