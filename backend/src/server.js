@@ -49,8 +49,8 @@ let mlServerProcess = null;
 
 // Start ML Server automatically
 const startMLServer = async () => {
-  const mlServerPath = path.resolve(__dirname, '../../src/utils');
-  const mlServerScript = path.join(mlServerPath, 'start_ml_server.py');
+    const mlServerPath = path.resolve(__dirname, '../../ml');
+    const mlServerScript = path.join(mlServerPath, 'start_ml_server.py');
 
   console.log('🤖 Starting ML Recommendation Server...');
   console.log(`   Script path: ${mlServerScript}`);

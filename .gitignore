@@ -49,5 +49,7 @@ venv/
 .venv/
 env/
 
-Mentora Guides/
+ml/
+agents_md_reports/
 brain/
+Mentora Guides/

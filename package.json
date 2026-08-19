@@ -65,12 +65,11 @@
             "vite": "^6.4.3"
       },
       "scripts": {
-            "dev": "start-all.bat",
+            "dev": "vite",
             "dev:frontend": "vite",
             "dev:backend": "cd backend && npm start",
             "dev:host": "vite --host",
             "build": "vite build",
-            "start:ml": "cd src/utils && python start_ml_server.py --port 5001",
-            "start:all": "start-all.bat"
+            "start:ml": "python ml/start_ml_server.py --port 5001"
       }
 }

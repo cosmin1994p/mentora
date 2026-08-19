@@ -19,7 +19,6 @@ import { GDPRConsentModal } from './components/GDPRConsentModal';
 import { UpgradeModal } from './components/UpgradeModal';
 import { SpeakersTab } from './components/SpeakersTab';
 import { SplashScreen } from './components/SplashScreen';
-import { generateMLRecommendations } from './utils/mlRecommendations';
 import { recordCourseInteraction } from './utils/emotionRecommendationService';
 import { apiService } from './utils/api';
 import { Toaster } from 'sonner';

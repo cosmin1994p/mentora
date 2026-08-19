@@ -43,7 +43,7 @@ services:
     ports:
       - "5001:5001"
     volumes:
-      - ./src/utils:/app/src/utils
+      - ./ml:/app/ml
     networks:
       - mentora-network
 
