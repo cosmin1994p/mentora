@@ -340,12 +340,18 @@ function CourseCard({
     }
   };
 
+  const previewVideoUrl = (() => {
+    const url = course.videoUrl;
+    if (!url) return null;
+    return url.startsWith('http') ? url : `${BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+  })();
+
   const handleMouseEnter = () => {
     setIsHovered(true);
 
     hoverTimeoutRef.current = setTimeout(() => {
       setShowPreview(true);
-      if (videoRef.current) {
+      if (videoRef.current && previewVideoUrl) {
         videoRef.current.currentTime = 0;
         videoRef.current.play().catch(() => { });
       }
@@ -441,19 +447,15 @@ function CourseCard({
           </div>
         )}
 
-        {/* Video Preview - Preloaded for instant playback */}
-        {!course.isLocked && (
+        {/* Video Preview - only when course has a real video URL */}
+        {!course.isLocked && previewVideoUrl && (
           <video
             ref={videoRef}
             muted
             playsInline
-            preload="metadata"
+            preload="none"
             onTimeUpdate={handleTimeUpdate}
-            src={(() => {
-              const url = course.videoUrl;
-              if (!url) return "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-              return url.startsWith('http') ? url : `${BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
-            })()}
+            src={previewVideoUrl}
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${showPreview ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           />
         )}
