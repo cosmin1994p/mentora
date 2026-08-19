@@ -1,7 +1,6 @@
 import { ChevronLeft, ChevronRight, Lock } from 'lucide-react';
 import { Course } from '../App';
 import { useRef, useState, useEffect } from 'react';
-import { motion } from 'motion/react';
 import { AnimatedFolder } from './ui/3d-folder';
 import { useLazyImage } from '../hooks/useMediaLoading';
 import { BASE_URL } from '../config';
@@ -396,10 +395,7 @@ function CourseCard({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4, delay: index * 0.05 }}
+    <div
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={() => {
@@ -407,7 +403,7 @@ function CourseCard({
           onCourseClick(course);
         }
       }}
-      className="flex-shrink-0 w-[200px] md:w-[280px] lg:w-[320px] cursor-pointer netflix-card-hover relative"
+      className="relative flex-shrink-0 w-[200px] cursor-pointer netflix-card-hover md:w-[280px] lg:w-[320px]"
     >
       <div className="relative aspect-video mb-2 rounded overflow-hidden netflix-shadow">
         {/* Thumbnail Image */}
@@ -517,6 +513,6 @@ function CourseCard({
           );
         })()}
       </div>
-    </motion.div>
+    </div>
   );
 }

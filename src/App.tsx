@@ -176,9 +176,6 @@ const getLikedCoursesKeyForEmail = (email?: string) => {
   return normalizedEmail ? `likedCourses:${normalizedEmail}` : 'likedCourses:anonymous';
 };
 
-// Daily mood popup — disabled for now; recommendations use defaults (curious / medium).
-const ENABLE_MOOD_MODAL = false;
-
 const CATEGORY_LABELS: Record<string, string> = {
   business: 'Business & Leadership',
   creative: 'Creative Arts',
@@ -195,8 +192,18 @@ const CATEGORY_LABELS: Record<string, string> = {
   finance: 'Finance & Investing',
 };
 
+const readCachedProfile = (): UserProfile | null => {
+  try {
+    const saved = localStorage.getItem('userProfile');
+    return saved ? JSON.parse(saved) : null;
+  } catch {
+    return null;
+  }
+};
+
 export default function App() {
   const [currentView, setCurrentView] = useState<View>('home');
+  const [mountedViews, setMountedViews] = useState<Set<View>>(() => new Set(['home']));
   const [selectedVideo, setSelectedVideo] = useState<Course | null>(null);
   const [isVideoMinimized, setIsVideoMinimized] = useState(false);  // Track minimized state
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
@@ -207,11 +214,11 @@ export default function App() {
   const [selectedCourseForReel, setSelectedCourseForReel] = useState<Course | null>(null);
   const [showAuth, setShowAuth] = useState(false);
   const [showMoodModal, setShowMoodModal] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => Boolean(localStorage.getItem('authToken')));
   const [showSearch, setShowSearch] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(() => readCachedProfile());
   const [courses, setCourses] = useState<Course[]>([]);
   const [reels, setReels] = useState<Reel[]>([]);
   const [likedCourses, setLikedCourses] = useState<string[]>([]);
@@ -222,7 +229,7 @@ export default function App() {
   const [recentReels, setRecentReels] = useState<Reel[]>([]);
   const [coursesLoading, setCoursesLoading] = useState(true);
   const [recommendationsLoading, setRecommendationsLoading] = useState(false);
-  const [profileLoaded, setProfileLoaded] = useState(false);
+  const [profileLoaded, setProfileLoaded] = useState(() => !localStorage.getItem('authToken'));
   const [showGDPRModal, setShowGDPRModal] = useState(false);
   const userConsentKey = useMemo(() => getGdprConsentKeyForEmail(userProfile?.email), [userProfile?.email]);
   const likedCoursesKey = useMemo(() => getLikedCoursesKeyForEmail(userProfile?.email), [userProfile?.email]);
@@ -1557,6 +1564,37 @@ export default function App() {
     setShowReels(true);
   }, []);
 
+  const handleViewChange = useCallback((view: View) => {
+    setCurrentView(view);
+    setMountedViews((prev) => {
+      if (prev.has(view)) return prev;
+      const next = new Set(prev);
+      next.add(view);
+      return next;
+    });
+  }, []);
+
+  const heroCourses = useMemo(
+    () => (visibleRecommended.length > 0 ? visibleRecommended : visibleCourses.slice(0, 10)),
+    [visibleRecommended, visibleCourses]
+  );
+
+  useEffect(() => {
+    const thumbnail = heroCourses[0]?.thumbnail;
+    if (!thumbnail || !thumbnail.startsWith('http')) return;
+
+    const existing = document.querySelector('link[data-hero-preload="true"]');
+    if (existing?.getAttribute('href') === thumbnail) return;
+
+    existing?.remove();
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = thumbnail;
+    link.setAttribute('data-hero-preload', 'true');
+    document.head.appendChild(link);
+  }, [heroCourses]);
+
   if (!isAuthenticated) {
     return (
       <AuthModal
@@ -1587,8 +1625,8 @@ export default function App() {
 
         <Header
           currentView={currentView}
-          onViewChange={setCurrentView}
-          userProfile={userProfile!}
+          onViewChange={handleViewChange}
+          userProfile={userProfile}
           onProfileClick={() => setShowProfileModal(true)}
           onLogout={handleLogout}
           onSearchClick={() => setShowSearch(true)}
@@ -1598,7 +1636,7 @@ export default function App() {
         <main className="pb-8">
           {currentView === 'home' && (
             <div>
-              <Hero onPlayClick={handleCoursePlay} onInfoClick={handleCourseClick} courses={visibleRecommended.length > 0 ? visibleRecommended : visibleCourses.slice(0, 10)} />
+              <Hero onPlayClick={handleCoursePlay} onInfoClick={handleCourseClick} courses={heroCourses} />
               <div className="px-4 md:px-12 space-y-8 -mt-32 relative z-10">
                 {visibleRecommended.length > 0 && (
                   <CourseGrid
@@ -1653,19 +1691,22 @@ export default function App() {
                     />
                   </div>
                 )}
-                <div>
-                  <h2 className="mb-4 px-4 md:px-0 text-xl md:text-2xl">Reels from Courses</h2>
-                  <ReelsSection
-                    key={`course-reels-${visibleReels.length}`}
-                    onReelClick={openReelViewer}
-                    reels={visibleReels}
-                  />
-                </div>
+                {visibleReels.length > 0 && (
+                  <div>
+                    <h2 className="mb-4 px-4 md:px-0 text-xl md:text-2xl">Reels from Courses</h2>
+                    <ReelsSection
+                      key={`course-reels-${visibleReels.length}`}
+                      onReelClick={openReelViewer}
+                      reels={visibleReels}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           )
           }
 
+          {mountedViews.has('courses') && (
           <div className={currentView === 'courses' ? 'block' : 'hidden'} aria-hidden={currentView !== 'courses'}>
             <div className="px-4 md:px-12 pt-24 space-y-8">
               <div>
@@ -1685,7 +1726,9 @@ export default function App() {
               ))}
             </div>
           </div>
+          )}
 
+          {mountedViews.has('reels') && (
           <div className={currentView === 'reels' ? 'block' : 'hidden'} aria-hidden={currentView !== 'reels'}>
             <div className="px-4 md:px-12 pt-24 pb-12 min-h-screen overflow-hidden">
               <div className="mb-8">
@@ -1701,6 +1744,7 @@ export default function App() {
               />
             </div>
           </div>
+          )}
 
           {
             currentView === 'my-learning' && (
