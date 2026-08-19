@@ -86,8 +86,13 @@ export function ReelsSection({ onReelClick, fullView, reels: providedReels }: Re
   // State for lazy loading images
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
 
-  // Preload initial batch of images (first 7) immediately
+  // Preload initial batch of images (first 7) immediately; full grid loads all at once.
   useEffect(() => {
+    if (fullView) {
+      setLoadedImages(new Set(displayReels.map(r => r.id)));
+      return;
+    }
+
     const initialBatch = displayReels.slice(0, 7).map(r => r.id);
     setLoadedImages(new Set(initialBatch));
 
@@ -97,7 +102,7 @@ export function ReelsSection({ onReelClick, fullView, reels: providedReels }: Re
     }, 200);
 
     return () => clearTimeout(timer);
-  }, [displayReels.length]);
+  }, [displayReels.length, fullView]);
 
   // Helper function to format duration
   const formatDuration = (reel: Reel) => {
