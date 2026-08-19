@@ -69,7 +69,6 @@
             "dev:frontend": "vite",
             "dev:backend": "cd backend && npm start",
             "dev:host": "vite --host",
-            "build": "vite build",
-            "start:ml": "python ml/start_ml_server.py --port 5001"
+            "build": "vite build"
       }
 }

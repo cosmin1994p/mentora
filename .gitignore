@@ -36,20 +36,13 @@ src/utils/*.log
 
 # Backend env
 backend/.env
-backend/.env.ml
 backend/src/.env
-.env.ml
 *.log
 
-# Python/ML
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 venv/
 .venv/
 env/
-
-ml/
-agents_md_reports/
-brain/
-Mentora Guides/

@@ -58,5 +58,3 @@ docker compose -f docker-compose.prod.yml ps
 **API unhealthy** — ensure `docker-compose.prod.yml` uses the Node-based healthcheck on `127.0.0.1:8080` (not `wget` + `localhost`).
 
 **Restore gzip** — set `RESTORE_GZIP=true` in `.env` if the archive was created with `--gzip`.
-
-**ML service** — disabled in production (`DISABLE_ML_SERVER=true`). Code lives in `ml/` for a future enable.

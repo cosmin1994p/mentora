@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # Node.js Backend API
   api:
     build:
       context: ./backend
@@ -31,23 +30,6 @@ services:
       timeout: 10s
       retries: 3
 
-  # Python ML Recommendation API
-  ml-api:
-    build:
-      context: .
-      dockerfile: Dockerfile.ml
-    container_name: mentora-ml-api
-    restart: unless-stopped
-    environment:
-      - FLASK_DEBUG=true
-    ports:
-      - "5001:5001"
-    volumes:
-      - ./ml:/app/ml
-    networks:
-      - mentora-network
-
-  # React Frontend (Vite)
   frontend:
     build:
       context: .
@@ -60,7 +42,6 @@ services:
       - "3000:3000"
     depends_on:
       - api
-      - ml-api
     volumes:
       - ./src:/app/src
       - ./public:/app/public

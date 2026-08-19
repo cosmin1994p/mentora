@@ -12,4 +12,3 @@ dist
 data
 backend/node_modules
 backend/media_cache
-agents_md_reports

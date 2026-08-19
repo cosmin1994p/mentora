@@ -17,7 +17,6 @@ Online learning platform: React web app, Node.js API, MongoDB, Backblaze B2 vide
 ```
 backend/          API (Express)
 src/              Web app (React)
-ml/               Python ML service (optional, disabled in prod v1)
 docker/           Mongo init + restore scripts
 public/           Static assets
 ```

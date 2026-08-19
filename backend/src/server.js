@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import 'express-async-errors';
-import { spawn } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -43,109 +42,6 @@ dotenv.config({ path: path.resolve(__srcDir, '..', '..', '.env') });
 // Get __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// ML Server process reference
-let mlServerProcess = null;
-
-// Start ML Server automatically
-const startMLServer = async () => {
-    const mlServerPath = path.resolve(__dirname, '../../ml');
-    const mlServerScript = path.join(mlServerPath, 'start_ml_server.py');
-
-  console.log('🤖 Starting ML Recommendation Server...');
-  console.log(`   Script path: ${mlServerScript}`);
-
-  // Check if file exists
-  const fs = await import('fs');
-  if (!fs.existsSync(mlServerScript)) {
-    console.error(`✗ ML Server script not found: ${mlServerScript}`);
-    return;
-  }
-
-  try {
-    // Use python3 on Mac/Linux, python on Windows
-    const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
-
-    mlServerProcess = spawn(pythonCmd, [mlServerScript, '--port', '5001'], {
-      cwd: mlServerPath,
-      stdio: ['ignore', 'pipe', 'pipe'],
-      shell: true,
-      detached: true
-    });
-
-    mlServerProcess.stdout.on('data', (data) => {
-      const output = data.toString().trim();
-      if (output) {
-        console.log(`[ML Server] ${output}`);
-      }
-    });
-
-    mlServerProcess.stderr.on('data', (data) => {
-      const output = data.toString().trim();
-      // Filter out TensorFlow warnings
-      if (output && !output.includes('TF_ENABLE_ONEDNN') && !output.includes('tensorflow') && !output.includes('oneDNN')) {
-        console.error(`[ML Server] ${output}`);
-      }
-    });
-
-    mlServerProcess.on('close', (code) => {
-      if (code !== 0 && code !== null) {
-        console.error(`[ML Server] Process exited with code ${code}`);
-      }
-    });
-
-    mlServerProcess.on('error', (err) => {
-      console.error('[ML Server] Failed to start:', err.message);
-    });
-
-    // Wait a bit and check if server is responding
-    await new Promise(resolve => setTimeout(resolve, 3000));
-
-    try {
-      const http = await import('http');
-      const checkHealth = () => new Promise((resolve) => {
-        const req = http.get('http://localhost:5001/api/health', (res) => {
-          resolve(res.statusCode === 200);
-        });
-        req.on('error', () => resolve(false));
-        req.setTimeout(2000, () => resolve(false));
-      });
-
-      const isHealthy = await checkHealth();
-      if (isHealthy) {
-        console.log('✓ ML Server started and responding on port 5001');
-      } else {
-        console.log('⚠ ML Server started but not yet responding - may need more time to initialize');
-      }
-    } catch (e) {
-      console.log('✓ ML Server process started on port 5001');
-    }
-  } catch (error) {
-    console.error('✗ Failed to start ML Server:', error.message);
-  }
-};
-
-// Cleanup on exit
-process.on('exit', () => {
-  if (mlServerProcess) {
-    mlServerProcess.kill();
-  }
-});
-
-process.on('SIGINT', () => {
-  console.log('\nShutting down servers...');
-  if (mlServerProcess) {
-    mlServerProcess.kill();
-  }
-  process.exit(0);
-});
-
-process.on('SIGTERM', () => {
-  if (mlServerProcess) {
-    mlServerProcess.kill();
-  }
-  process.exit(0);
-});
 
 const app = express();
 const PORT = process.env.PORT || process.env.BACKEND_PORT || 8080;
@@ -352,19 +248,6 @@ const startServer = async () => {
   try {
     await connectDB();
 
-    const skipMlSpawn =
-      process.env.DISABLE_ML_SERVER === 'true' || Boolean(process.env.ML_API_URL);
-
-    if (skipMlSpawn) {
-      console.log(
-        process.env.ML_API_URL
-          ? `ML server auto-start skipped (ML_API_URL=${process.env.ML_API_URL})`
-          : 'ML server auto-start skipped (DISABLE_ML_SERVER=true)'
-      );
-    } else {
-      await startMLServer();
-    }
-
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`
 ╔═══════════════════════════════════════════════════════════════════════════╗
@@ -373,7 +256,7 @@ const startServer = async () => {
 ║   Server:    http://localhost:${PORT}                                      ║
 ║   Database:  ${mongoose.connection.db?.databaseName || 'masterclass'}                                                ║
 ║   GridFS:    ✓ Initialized                                                ║
-║   ML API:    ${skipMlSpawn ? 'disabled (use ML_API_URL or re-enable spawn)'.padEnd(42) : 'http://localhost:5001/api'.padEnd(42)} ║
+║   Recommendations: tag/emotion fallback (no external ML)                   ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║   API Endpoints:                                                          ║
 ║   • Auth:          /api/auth/*                                            ║
