@@ -176,6 +176,9 @@ const getLikedCoursesKeyForEmail = (email?: string) => {
   return normalizedEmail ? `likedCourses:${normalizedEmail}` : 'likedCourses:anonymous';
 };
 
+// Daily mood popup — disabled for now; recommendations use defaults (curious / medium).
+const ENABLE_MOOD_MODAL = false;
+
 const CATEGORY_LABELS: Record<string, string> = {
   business: 'Business & Leadership',
   creative: 'Creative Arts',
