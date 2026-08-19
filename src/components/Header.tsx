@@ -13,6 +13,14 @@ interface HeaderProps {
   onNotificationsClick: () => void;
 }
 
+const FALLBACK_PROFILE: UserProfile = {
+  name: 'Mentora',
+  email: '',
+  avatar: '/logo-header.jpg',
+  role: 'user',
+  packageTier: 'free',
+};
+
 export function Header({
   currentView,
   onViewChange,
@@ -24,6 +32,7 @@ export function Header({
 }: HeaderProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const profile = userProfile || FALLBACK_PROFILE;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -36,37 +45,30 @@ export function Header({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Navigation items for tubelight navbar
   const navItems = [
     { name: 'Home', value: 'home', icon: Home },
     { name: 'Courses', value: 'courses', icon: BookOpen },
     { name: 'Reels', value: 'reels', icon: Film },
     { name: 'Speakers', value: 'speakers', icon: GraduationCap },
     { name: 'My Learning', value: 'my-learning', icon: GraduationCap },
-    ...(userProfile?.role === 'admin' ? [{ name: 'Admin', value: 'admin', icon: Settings }] : []),
+    ...(profile.role === 'admin' ? [{ name: 'Admin', value: 'admin', icon: Settings }] : []),
   ];
 
-  // Show loading state if profile is not yet loaded
-  if (!userProfile) {
-    return (
-      <header className="fixed top-0 left-0 right-0 z-40 bg-gradient-to-b from-[#002147]/90 to-transparent transition-all">
-        <div className="px-4 md:px-12 py-6 flex items-center justify-between">
-          <img src="/logo-header.jpg" alt="Mentora" className="h-10 w-auto object-contain" />
-          <div className="w-8 h-8 rounded bg-gray-700 animate-pulse"></div>
-        </div>
-      </header>
-    );
-  }
-
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 bg-gradient-to-b from-[#002147]/90 to-transparent transition-all">
-      <div className="px-4 md:px-12 py-6 flex items-center justify-between">
+    <header className="fixed top-0 left-0 right-0 z-40 bg-gradient-to-b from-[#002147]/90 to-transparent">
+      <div className="flex min-h-[88px] items-center justify-between px-4 py-6 md:px-12">
         <div className="flex items-center gap-12">
           <div className="flex items-center">
-            <img src="/logo-header.jpg" alt="Mentora" className="h-10 w-auto object-contain" />
+            <img
+              src="/logo-header.jpg"
+              alt="Mentora"
+              className="h-10 w-auto object-contain"
+              width={160}
+              height={40}
+              fetchPriority="high"
+            />
           </div>
 
-          {/* Desktop Navigation with Tubelight Effect */}
           <div className="hidden md:block">
             <NavBar
               items={navItems}
@@ -78,52 +80,58 @@ export function Header({
 
         <div className="flex items-center gap-6">
           <button
-            className="text-white hover:text-gray-300 transition-all"
+            className="text-white transition-all hover:text-gray-300"
             onClick={onSearchClick}
+            aria-label="Search"
           >
-            <Search className="w-6 h-6" />
+            <Search className="h-6 w-6" />
           </button>
           <button
-            className="text-white hover:text-gray-300 transition-all relative"
+            className="relative text-white transition-all hover:text-gray-300"
             onClick={onNotificationsClick}
+            aria-label="Notifications"
           >
-            <Bell className="w-6 h-6" />
-            <span className="absolute top-0 right-0 w-2 h-2 bg-[#FF5530] rounded-full"></span>
+            <Bell className="h-6 w-6" />
+            <span className="absolute right-0 top-0 h-2 w-2 rounded-full bg-[#FF5530]" />
           </button>
 
-          {/* Profile Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="relative group flex items-center gap-2"
+              onClick={() => userProfile && setIsDropdownOpen(!isDropdownOpen)}
+              className="group relative flex items-center gap-2"
+              aria-label="Profile menu"
             >
-              <div className="w-8 h-8 rounded overflow-hidden ring-0 group-hover:ring-2 ring-white transition-all">
+              <div className="h-8 w-8 overflow-hidden rounded ring-0 transition-all group-hover:ring-2 group-hover:ring-white">
                 <img
-                  src={userProfile.avatar}
-                  alt={userProfile.name}
-                  className="w-full h-full object-cover"
+                  src={profile.avatar}
+                  alt={profile.name}
+                  className="h-full w-full object-cover"
+                  width={32}
+                  height={32}
                 />
               </div>
-              <ChevronDown className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
 
-            {isDropdownOpen && (
-              <div className="absolute right-0 top-12 w-64 bg-[#002147]/95 backdrop-blur-sm border border-white/10 rounded-lg shadow-2xl overflow-hidden animate-fadeIn">
-                <div className="p-4 border-b border-white/10">
+            {isDropdownOpen && userProfile && (
+              <div className="absolute right-0 top-12 w-64 animate-fadeIn overflow-hidden rounded-lg border border-white/10 bg-[#002147]/95 shadow-2xl backdrop-blur-sm">
+                <div className="border-b border-white/10 p-4">
                   <div className="flex items-center gap-3">
                     <img
-                      src={userProfile.avatar}
-                      alt={userProfile.name}
-                      className="w-12 h-12 rounded-full object-cover"
+                      src={profile.avatar}
+                      alt={profile.name}
+                      className="h-12 w-12 rounded-full object-cover"
+                      width={48}
+                      height={48}
                     />
                     <div>
-                      <p className="font-semibold">{userProfile.name}</p>
-                      <p className="text-sm text-gray-400">{userProfile.email}</p>
-                      <span className={`inline-block mt-1 px-2 py-0.5 text-xs rounded ${userProfile.role === 'admin'
+                      <p className="font-semibold">{profile.name}</p>
+                      <p className="text-sm text-gray-400">{profile.email}</p>
+                      <span className={`mt-1 inline-block rounded px-2 py-0.5 text-xs ${profile.role === 'admin'
                         ? 'bg-[#FF5530] text-white'
                         : 'bg-gray-700 text-gray-300'
                         }`}>
-                        {userProfile.role === 'admin' ? 'Admin' : 'User'}
+                        {profile.role === 'admin' ? 'Admin' : 'User'}
                       </span>
                     </div>
                   </div>
@@ -135,13 +143,11 @@ export function Header({
                       onProfileClick();
                       setIsDropdownOpen(false);
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/10 transition-all"
+                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition-all hover:bg-white/10"
                   >
-                    <User className="w-5 h-5" />
+                    <User className="h-5 w-5" />
                     <span>Edit Profile</span>
                   </button>
-
-
                 </div>
 
                 <div className="border-t border-white/10">
@@ -150,9 +156,9 @@ export function Header({
                       onLogout();
                       setIsDropdownOpen(false);
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-left text-[#FF5530] hover:bg-[#FF5530]/10 transition-all"
+                    className="flex w-full items-center gap-3 px-4 py-3 text-left text-[#FF5530] transition-all hover:bg-[#FF5530]/10"
                   >
-                    <LogOut className="w-5 h-5" />
+                    <LogOut className="h-5 w-5" />
                     <span>Logout</span>
                   </button>
                 </div>
@@ -162,57 +168,56 @@ export function Header({
         </div>
       </div>
 
-      {/* Mobile Navigation */}
-      <div className="md:hidden px-4 pb-4 flex gap-2 overflow-x-auto scrollbar-hide">
+      <div className="flex min-h-[52px] gap-2 overflow-x-auto px-4 pb-4 scrollbar-hide md:hidden">
         <button
           onClick={() => onViewChange('home')}
-          className={`flex items-center gap-2 px-4 py-2 rounded whitespace-nowrap transition-all ${currentView === 'home'
+          className={`flex items-center gap-2 whitespace-nowrap rounded px-4 py-2 transition-all ${currentView === 'home'
             ? 'bg-white text-black'
             : 'bg-[#002147]/50 text-gray-300'
             }`}
         >
-          <Home className="w-4 h-4" />
+          <Home className="h-4 w-4" />
           Home
         </button>
         <button
           onClick={() => onViewChange('courses')}
-          className={`flex items-center gap-2 px-4 py-2 rounded whitespace-nowrap transition-all ${currentView === 'courses'
+          className={`flex items-center gap-2 whitespace-nowrap rounded px-4 py-2 transition-all ${currentView === 'courses'
             ? 'bg-white text-black'
             : 'bg-[#002147]/50 text-gray-300'
             }`}
         >
-          <BookOpen className="w-4 h-4" />
+          <BookOpen className="h-4 w-4" />
           Courses
         </button>
         <button
           onClick={() => onViewChange('reels')}
-          className={`flex items-center gap-2 px-4 py-2 rounded whitespace-nowrap transition-all ${currentView === 'reels'
+          className={`flex items-center gap-2 whitespace-nowrap rounded px-4 py-2 transition-all ${currentView === 'reels'
             ? 'bg-white text-black'
             : 'bg-[#002147]/50 text-gray-300'
             }`}
         >
-          <Film className="w-4 h-4" />
+          <Film className="h-4 w-4" />
           Reels
         </button>
         <button
           onClick={() => onViewChange('my-learning')}
-          className={`flex items-center gap-2 px-4 py-2 rounded whitespace-nowrap transition-all ${currentView === 'my-learning'
+          className={`flex items-center gap-2 whitespace-nowrap rounded px-4 py-2 transition-all ${currentView === 'my-learning'
             ? 'bg-white text-black'
             : 'bg-[#002147]/50 text-gray-300'
             }`}
         >
-          <GraduationCap className="w-4 h-4" />
+          <GraduationCap className="h-4 w-4" />
           My List
         </button>
-        {userProfile.role === 'admin' && (
+        {profile.role === 'admin' && (
           <button
             onClick={() => onViewChange('admin')}
-            className={`flex items-center gap-2 px-4 py-2 rounded whitespace-nowrap transition-all ${currentView === 'admin'
+            className={`flex items-center gap-2 whitespace-nowrap rounded px-4 py-2 transition-all ${currentView === 'admin'
               ? 'bg-[#FF5530] text-white'
               : 'bg-[#002147]/50 text-gray-300'
               }`}
           >
-            <Settings className="w-4 h-4" />
+            <Settings className="h-4 w-4" />
             Admin
           </button>
         )}

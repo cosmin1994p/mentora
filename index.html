@@ -5,10 +5,18 @@
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>Mentora</title>
+      <style>
+        html, body, #root {
+          margin: 0;
+          min-height: 100%;
+          background: #002147;
+          color: #fff;
+        }
+      </style>
       <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
       <link rel="dns-prefetch" href="https://images.unsplash.com" />
       <link rel="icon" type="image/jpeg" href="/logo-header.jpg" />
-      <link rel="preload" href="/logo-header.jpg" as="image" />
+      <link rel="preload" href="/logo-header.jpg" as="image" fetchpriority="high" />
     </head>
 
     <body>

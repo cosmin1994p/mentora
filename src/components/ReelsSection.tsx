@@ -1,6 +1,5 @@
 import { Play, Heart, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Reel } from '../App';
-import { motion } from 'motion/react';
 import { useLazyImage } from '../hooks/useMediaLoading';
 import { useRef, useState, useEffect } from 'react';
 
@@ -257,10 +256,7 @@ function ReelCard({
   });
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.05 }}
+    <div
       onClick={() => onReelClick(reel)}
       style={!isGridView ? { minWidth: '240px', maxWidth: '280px', height: '400px' } : undefined}
       className={`cursor-pointer group relative rounded-xl overflow-hidden netflix-shadow hover-scale ${isGridView
@@ -304,6 +300,6 @@ function ReelCard({
       <div className="absolute top-3 right-3 px-2 py-1 bg-[#002147]/60 backdrop-blur-sm rounded-lg text-xs border border-white/20">
         {formatDuration(reel)}
       </div>
-    </motion.div>
+    </div>
   );
 }
