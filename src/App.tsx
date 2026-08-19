@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { motion } from 'motion/react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { CourseGrid } from './components/CourseGrid';
@@ -18,7 +17,6 @@ import { NotificationSystem, Notification } from './components/NotificationSyste
 import { GDPRConsentModal } from './components/GDPRConsentModal';
 import { UpgradeModal } from './components/UpgradeModal';
 import { SpeakersTab } from './components/SpeakersTab';
-import { SplashScreen } from './components/SplashScreen';
 import { recordCourseInteraction } from './utils/emotionRecommendationService';
 import { apiService } from './utils/api';
 import { Toaster } from 'sonner';
@@ -178,8 +176,26 @@ const getLikedCoursesKeyForEmail = (email?: string) => {
   return normalizedEmail ? `likedCourses:${normalizedEmail}` : 'likedCourses:anonymous';
 };
 
+// Daily mood popup — disabled for now; recommendations use defaults (curious / medium).
+const ENABLE_MOOD_MODAL = false;
+
+const CATEGORY_LABELS: Record<string, string> = {
+  business: 'Business & Leadership',
+  creative: 'Creative Arts',
+  tech: 'Science & Technology',
+  featured: 'Featured Courses',
+  trending: 'Trending Now',
+  wellness: 'Wellness & Lifestyle',
+  music: 'Music & Audio',
+  writing: 'Writing & Literature',
+  photography: 'Photography & Film',
+  design: 'Design & Art',
+  development: 'Software Development',
+  marketing: 'Marketing & Sales',
+  finance: 'Finance & Investing',
+};
+
 export default function App() {
-  const [showSplash, setShowSplash] = useState(true);
   const [currentView, setCurrentView] = useState<View>('home');
   const [selectedVideo, setSelectedVideo] = useState<Course | null>(null);
   const [isVideoMinimized, setIsVideoMinimized] = useState(false);  // Track minimized state
@@ -205,7 +221,7 @@ export default function App() {
   const [panelNotifications, setPanelNotifications] = useState<Notification[]>([]);
   const [recentReels, setRecentReels] = useState<Reel[]>([]);
   const [coursesLoading, setCoursesLoading] = useState(true);
-  const [recommendationsLoading, setRecommendationsLoading] = useState(true);
+  const [recommendationsLoading, setRecommendationsLoading] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState(false);
   const [showGDPRModal, setShowGDPRModal] = useState(false);
   const userConsentKey = useMemo(() => getGdprConsentKeyForEmail(userProfile?.email), [userProfile?.email]);
@@ -252,7 +268,7 @@ export default function App() {
           localStorage.setItem('userProfile', JSON.stringify(apiProfile));
 
           const today = new Date().toDateString();
-          if (!apiProfile.dailyMood || apiProfile.dailyMood.date !== today) {
+          if (ENABLE_MOOD_MODAL && (!apiProfile.dailyMood || apiProfile.dailyMood.date !== today)) {
             setShowMoodModal(true);
           }
         } else {
@@ -261,7 +277,7 @@ export default function App() {
           if (localProfile) {
             setUserProfile(localProfile);
             const today = new Date().toDateString();
-            if (!localProfile.dailyMood || localProfile.dailyMood.date !== today) {
+            if (ENABLE_MOOD_MODAL && (!localProfile.dailyMood || localProfile.dailyMood.date !== today)) {
               setShowMoodModal(true);
             }
           }
@@ -339,6 +355,7 @@ export default function App() {
         // This prevents the loading splash screen from staying indefinitely
         if (recommendedCourses.length === 0) {
           setRecommendedCourses(sortedCourses.slice(0, 10));
+          setRecommendationsLoading(false);
         }
         console.log('✓ Loaded', sortedCourses.length, 'courses from API');
       } catch (error) {
@@ -1378,7 +1395,9 @@ export default function App() {
     }
     localStorage.setItem('userProfile', JSON.stringify(profile));
     setShowAuth(false);
-    setShowMoodModal(true);
+    if (ENABLE_MOOD_MODAL) {
+      setShowMoodModal(true);
+    }
   };
 
   const handleLogout = () => {
@@ -1498,6 +1517,46 @@ export default function App() {
     setShowMoodModal(false);
   };
 
+  const visibleCourses = useMemo(
+    () => (Array.isArray(courses) ? courses.filter(c => c.packageTiers && c.packageTiers.length > 0) : []),
+    [courses]
+  );
+  const visibleRecommended = useMemo(
+    () => recommendedCourses.filter(c => c.packageTiers && c.packageTiers.length > 0),
+    [recommendedCourses]
+  );
+  const visibleReels = useMemo(
+    () => (Array.isArray(reels) ? reels.filter(reel => {
+      if (!reel.courseId) return true;
+      const parentCourse = courses.find(c => c.id === reel.courseId);
+      return parentCourse ? (parentCourse.packageTiers && parentCourse.packageTiers.length > 0) : true;
+    }) : []),
+    [reels, courses]
+  );
+  const visibleRecommendedReels = useMemo(
+    () => (Array.isArray(recommendedReels) ? recommendedReels.filter(reel => {
+      if (!reel.courseId) return true;
+      const parentCourse = courses.find(c => c.id === reel.courseId);
+      return parentCourse ? (parentCourse.packageTiers && parentCourse.packageTiers.length > 0) : true;
+    }) : []),
+    [recommendedReels, courses]
+  );
+  const coursesByCategory = useMemo(() => {
+    const uniqueCategories = [...new Set(visibleCourses.map(c => c.category).filter(Boolean))];
+    return uniqueCategories.map(category => ({
+      category,
+      title: CATEGORY_LABELS[category] || category.charAt(0).toUpperCase() + category.slice(1),
+      courses: visibleCourses.filter(c => c.category === category),
+    }));
+  }, [visibleCourses]);
+
+  const openReelViewer = useCallback((reel: Reel) => {
+    const audio = new Audio("data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==");
+    audio.play().catch(() => {});
+    setSelectedReel(reel);
+    setShowReels(true);
+  }, []);
+
   if (!isAuthenticated) {
     return (
       <AuthModal
@@ -1517,31 +1576,8 @@ export default function App() {
     );
   }
 
-  const visibleCourses = Array.isArray(courses) ? courses.filter(c => c.packageTiers && c.packageTiers.length > 0) : [];
-  const visibleRecommended = recommendedCourses.filter(c => c.packageTiers && c.packageTiers.length > 0);
-
-  const visibleReels = Array.isArray(reels) ? reels.filter(reel => {
-    if (!reel.courseId) return true;
-    const parentCourse = Array.isArray(courses) ? courses.find(c => c.id === reel.courseId) : null;
-    return parentCourse ? (parentCourse.packageTiers && parentCourse.packageTiers.length > 0) : true;
-  }) : [];
-  const visibleRecommendedReels = Array.isArray(recommendedReels) ? recommendedReels.filter(reel => {
-    if (!reel.courseId) return true;
-    const parentCourse = Array.isArray(courses) ? courses.find(c => c.id === reel.courseId) : null;
-    return parentCourse ? (parentCourse.packageTiers && parentCourse.packageTiers.length > 0) : true;
-  }) : [];
-
-
   return (
     <div className="min-h-screen bg-[#002147] text-white relative overscroll-contain">
-      {/* Splash Screen */}
-      {showSplash && (
-        <SplashScreen
-          onComplete={() => setShowSplash(false)}
-          duration={2500}
-        />
-      )}
-
       {/* Content */}
       <div className="relative z-10">
         <Toaster
@@ -1561,71 +1597,8 @@ export default function App() {
 
         <main className="pb-8">
           {currentView === 'home' && (
-            <div className="animate-fadeIn">
-              {/* Full-screen loading overlay — covers everything until recommendations are ready */}
-              {visibleRecommended.length === 0 && (coursesLoading || recommendationsLoading) && (
-                <div className="fixed inset-0 z-50 bg-[#002147] flex items-center justify-center overflow-hidden">
-                  {/* Animated ambient background glow */}
-                  <motion.div
-                    className="absolute"
-                    style={{
-                      width: '600px',
-                      height: '600px',
-                      borderRadius: '50%',
-                      background: 'radial-gradient(circle, rgba(255, 85, 48, 0.2) 0%, rgba(255, 85, 48, 0.05) 40%, transparent 70%)',
-                      filter: 'blur(60px)',
-                    }}
-                    animate={{
-                      scale: [1, 1.3, 1],
-                      opacity: [0.4, 0.8, 0.4],
-                    }}
-                    transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                  />
-                  <motion.div
-                    className="absolute"
-                    style={{
-                      width: '400px',
-                      height: '400px',
-                      borderRadius: '50%',
-                      background: 'radial-gradient(circle, rgba(255, 85, 48, 0.15) 0%, transparent 70%)',
-                      filter: 'blur(40px)',
-                    }}
-                    animate={{
-                      scale: [1.2, 1, 1.2],
-                      opacity: [0.3, 0.6, 0.3],
-                    }}
-                    transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-                  />
-                  <div className="relative flex flex-col items-center text-center">
-                    <div className="relative w-24 h-24 mb-10">
-                      <motion.div
-                        className="absolute inset-0 rounded-full"
-                        style={{ border: '2px solid rgba(255, 85, 48, 0.2)' }}
-                        animate={{ scale: [1, 1.15, 1], opacity: [0.5, 1, 0.5] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                      />
-                      <motion.div
-                        className="absolute inset-0 rounded-full"
-                        style={{ border: '2px solid transparent', borderTopColor: '#FF5530', borderRightColor: '#FF5530' }}
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
-                      />
-                      <motion.div
-                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#FF5530]"
-                        animate={{ scale: [1, 1.5, 1], boxShadow: ['0 0 10px rgba(255,85,48,0.5)', '0 0 30px rgba(255,85,48,0.8)', '0 0 10px rgba(255,85,48,0.5)'] }}
-                        transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                      />
-                    </div>
-                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="relative overflow-hidden mb-4 flex items-center justify-center">
-                        <img src="/logo-header.jpg" alt="Mentora" className="h-10 w-auto object-contain" />
-                      </motion.div>
-                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }} className="text-gray-400 text-sm tracking-wider">
-                      Loading courses...
-                    </motion.p>
-                  </div>
-                </div>
-              )}
-              <Hero onPlayClick={handleCoursePlay} onInfoClick={handleCourseClick} courses={visibleRecommended} />
+            <div>
+              <Hero onPlayClick={handleCoursePlay} onInfoClick={handleCourseClick} courses={visibleRecommended.length > 0 ? visibleRecommended : visibleCourses.slice(0, 10)} />
               <div className="px-4 md:px-12 space-y-8 -mt-32 relative z-10">
                 {visibleRecommended.length > 0 && (
                   <CourseGrid
@@ -1675,13 +1648,7 @@ export default function App() {
                     <h2 className="mb-4 px-4 md:px-0 text-xl md:text-2xl">Recommended Reels</h2>
                     <ReelsSection
                       key={`recommended-reels-${visibleRecommendedReels.length}`}
-                      onReelClick={(reel) => {
-                        // Play a tiny silent sound synchronously inside the click handler to unlock the browser's audio context instantly!
-                        const audio = new Audio("data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==");
-                        audio.play().catch(() => {});
-                        setSelectedReel(reel);
-                        setShowReels(true);
-                      }}
+                      onReelClick={openReelViewer}
                       reels={visibleRecommendedReels}
                     />
                   </div>
@@ -1690,13 +1657,7 @@ export default function App() {
                   <h2 className="mb-4 px-4 md:px-0 text-xl md:text-2xl">Reels from Courses</h2>
                   <ReelsSection
                     key={`course-reels-${visibleReels.length}`}
-                    onReelClick={(reel) => {
-                      // Play a tiny silent sound synchronously inside the click handler to unlock the browser's audio context instantly!
-                      const audio = new Audio("data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==");
-                      audio.play().catch(() => {});
-                      setSelectedReel(reel);
-                      setShowReels(true);
-                    }}
+                    onReelClick={openReelViewer}
                     reels={visibleReels}
                   />
                 </div>
@@ -1705,74 +1666,41 @@ export default function App() {
           )
           }
 
-          {
-            currentView === 'courses' && (
-              <div className="px-4 md:px-12 pt-24 space-y-8 animate-fadeIn">
-                <div>
-                  <h1 className="mb-2">All Courses</h1>
-                  <p className="text-gray-400">all courses based on category</p>
-                </div>
-                {/* Dynamically render all unique categories from courses */}
-                {(() => {
-                  const uniqueCategories = [...new Set(courses.map(c => c.category).filter(Boolean))];
-                  const categoryLabels: Record<string, string> = {
-                    'business': 'Business & Leadership',
-                    'creative': 'Creative Arts',
-                    'tech': 'Science & Technology',
-                    'featured': 'Featured Courses',
-                    'trending': 'Trending Now',
-                    'wellness': 'Wellness & Lifestyle',
-                    'music': 'Music & Audio',
-                    'writing': 'Writing & Literature',
-                    'photography': 'Photography & Film',
-                    'design': 'Design & Art',
-                    'development': 'Software Development',
-                    'marketing': 'Marketing & Sales',
-                    'finance': 'Finance & Investing'
-                  };
-
-                  return uniqueCategories.map(category => (
-                    <CourseGrid
-                      key={category}
-                      title={categoryLabels[category] || category.charAt(0).toUpperCase() + category.slice(1)}
-                      category={category}
-                      onCourseClick={handleCourseClick}
-                      onPlay={handlePlayCourse}
-                      onEnroll={handleEnrollCourse}
-                      courses={courses}
-                    />
-                  ));
-                })()}
+          <div className={currentView === 'courses' ? 'block' : 'hidden'} aria-hidden={currentView !== 'courses'}>
+            <div className="px-4 md:px-12 pt-24 space-y-8">
+              <div>
+                <h1 className="mb-2">All Courses</h1>
+                <p className="text-gray-400">all courses based on category</p>
               </div>
-            )
-          }
-
-          {
-            currentView === 'reels' && (
-              <div className="px-4 md:px-12 pt-24 pb-12 animate-fadeIn min-h-screen overflow-hidden">
-                <div className="mb-8">
-                  <h1 className="mb-2">Reels</h1>
-                  <p className="text-gray-400">Quick lessons and highlights</p>
-                </div>
-
-
-
-                <h2 className="text-xl md:text-2xl font-bold mb-4">All Reels</h2>
-                <ReelsSection
-                  key={`all-reels-${visibleReels.length}`}
-                  onReelClick={(reel) => {
-                    // Play a tiny silent sound synchronously inside the click handler to unlock the browser's audio context instantly!
-                    const audio = new Audio("data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==");
-                    audio.play().catch(() => {});
-                    setSelectedReel(reel);
-                    setShowReels(true);
-                  }}
-                  fullView
-                  reels={visibleReels}
+              {coursesByCategory.map(({ category, title, courses: categoryCourses }) => (
+                <CourseGrid
+                  key={category}
+                  title={title}
+                  category={category}
+                  onCourseClick={handleCourseClick}
+                  onPlay={handlePlayCourse}
+                  onEnroll={handleEnrollCourse}
+                  courses={categoryCourses}
                 />
+              ))}
+            </div>
+          </div>
+
+          <div className={currentView === 'reels' ? 'block' : 'hidden'} aria-hidden={currentView !== 'reels'}>
+            <div className="px-4 md:px-12 pt-24 pb-12 min-h-screen overflow-hidden">
+              <div className="mb-8">
+                <h1 className="mb-2">Reels</h1>
+                <p className="text-gray-400">Quick lessons and highlights</p>
               </div>
-            )
-          }
+              <h2 className="text-xl md:text-2xl font-bold mb-4">All Reels</h2>
+              <ReelsSection
+                key={`all-reels-${visibleReels.length}`}
+                onReelClick={openReelViewer}
+                fullView
+                reels={visibleReels}
+              />
+            </div>
+          </div>
 
           {
             currentView === 'my-learning' && (
@@ -2033,7 +1961,7 @@ export default function App() {
         }
 
         {
-          showMoodModal && (
+          ENABLE_MOOD_MODAL && showMoodModal && (
             <MoodModal
               onComplete={handleMoodUpdate}
             />
