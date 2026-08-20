@@ -57,9 +57,9 @@ export function Header({
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-gradient-to-b from-[#002147]/90 to-transparent">
-      <div className="flex min-h-[88px] items-center justify-between px-4 py-6 md:px-12">
-        <div className="flex items-center gap-12">
-          <div className="flex items-center">
+      <div className="flex items-center justify-between px-4 py-6 md:px-12">
+        <div className="flex min-w-0 flex-1 items-center gap-6 lg:gap-12">
+          <div className="flex shrink-0 items-center">
             <img
               src="/logo-header.jpg"
               alt="Mentora"
@@ -70,7 +70,7 @@ export function Header({
             />
           </div>
 
-          <div className="hidden md:block">
+          <div className="hidden min-w-0 md:block">
             <NavBar
               items={navItems}
               activeTab={currentView}
@@ -79,7 +79,7 @@ export function Header({
           </div>
         </div>
 
-        <div className="flex items-center gap-6">
+        <div className="flex shrink-0 items-center gap-4 md:gap-6">
           <button
             className="text-white transition-all hover:text-gray-300"
             onClick={onSearchClick}
@@ -111,7 +111,7 @@ export function Header({
                   height={32}
                 />
               </div>
-              <ChevronDown className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`hidden h-4 w-4 transition-transform sm:block ${isDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isDropdownOpen && userProfile && (
@@ -169,7 +169,7 @@ export function Header({
         </div>
       </div>
 
-      <div className="flex min-h-[52px] gap-2 overflow-x-auto px-4 pb-4 scrollbar-hide md:hidden">
+      <div className="flex gap-2 overflow-x-auto px-4 pb-4 scrollbar-hide md:hidden">
         <button
           onClick={() => onViewChange('home')}
           className={`flex items-center gap-2 whitespace-nowrap rounded px-4 py-2 transition-all ${currentView === 'home'
