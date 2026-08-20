@@ -11,7 +11,7 @@ export function Hero({ onPlayClick, onInfoClick, courses }: HeroProps) {
   const featuredCourse = courses[0];
 
   return (
-    <section className="relative h-[70svh] min-h-[420px] max-h-[900px] overflow-hidden bg-[#002147]">
+    <section className="relative min-h-[100svh] overflow-hidden bg-[#002147]">
       <div className="absolute inset-0 bg-[#002147]">
         {featuredCourse?.thumbnail ? (
           <img
@@ -32,13 +32,14 @@ export function Hero({ onPlayClick, onInfoClick, courses }: HeroProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-[#002147] via-transparent to-transparent" />
       </div>
 
-      <div className="relative flex h-full items-center px-4 md:px-12">
+      {/* pt clears fixed header; content sits in lower area like before */}
+      <div className="relative flex min-h-[100svh] flex-col justify-end px-4 pb-28 pt-36 md:px-12 md:pb-36 md:pt-28">
         <div className="max-w-2xl">
           {featuredCourse ? (
             <>
               <h1 className="mb-6 text-shadow-netflix">{featuredCourse.title}</h1>
 
-              <div className="mb-6 flex items-center gap-4 text-lg">
+              <div className="mb-6 flex flex-wrap items-center gap-4 text-lg">
                 <span className="font-semibold text-[#FF5530]">{(featuredCourse.rating * 20).toFixed(0)}% Match</span>
                 <span className="border border-gray-400 px-2 py-0.5 text-sm">{new Date().getFullYear()}</span>
                 <span>{featuredCourse.lessons} Lessons</span>
@@ -49,7 +50,7 @@ export function Hero({ onPlayClick, onInfoClick, courses }: HeroProps) {
                 {featuredCourse.description}
               </p>
 
-              <div className="flex gap-4">
+              <div className="flex flex-wrap gap-4">
                 <button
                   onClick={() => onPlayClick(featuredCourse)}
                   className="flex items-center gap-3 rounded bg-[#FF5530] px-8 py-3 text-lg font-semibold text-white shadow-lg shadow-[#FF5530]/20 transition-all hover:bg-[#FF5530]/80"

@@ -234,6 +234,7 @@ export default function App() {
   const [recommendationsLoading, setRecommendationsLoading] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState(() => !localStorage.getItem('authToken'));
   const [showGDPRModal, setShowGDPRModal] = useState(false);
+  const [homeBelowFoldReady, setHomeBelowFoldReady] = useState(false);
   const userConsentKey = useMemo(() => getGdprConsentKeyForEmail(userProfile?.email), [userProfile?.email]);
   const likedCoursesKey = useMemo(() => getLikedCoursesKeyForEmail(userProfile?.email), [userProfile?.email]);
 
@@ -675,6 +676,20 @@ export default function App() {
       }
     }
   }, [courses]);
+
+  // Defer below-the-fold home sections so first paint stays lighter.
+  useEffect(() => {
+    if (currentView !== 'home') return;
+
+    const enable = () => setHomeBelowFoldReady(true);
+    if (typeof window.requestIdleCallback === 'function') {
+      const id = window.requestIdleCallback(enable, { timeout: 1200 });
+      return () => window.cancelIdleCallback(id);
+    }
+
+    const timer = window.setTimeout(enable, 250);
+    return () => window.clearTimeout(timer);
+  }, [currentView]);
 
   // Regenerate reel recommendations when reels or mood/interests change
   const reelsRecInProgress = useRef(false);
@@ -1660,6 +1675,8 @@ export default function App() {
                   courses={visibleCourses.filter(c => c.enrolled && c.progress && c.progress > 0)}
                   showProgress
                 />
+                {homeBelowFoldReady && (
+                  <>
                 <CourseGrid
                   title="Business & Leadership"
                   category="business"
@@ -1704,6 +1721,8 @@ export default function App() {
                     />
                   </div>
                 )}
+                  </>
+                )}
               </div>
             </div>
           )
@@ -1711,7 +1730,7 @@ export default function App() {
 
           {mountedViews.has('courses') && (
           <div className={currentView === 'courses' ? 'block' : 'hidden'} aria-hidden={currentView !== 'courses'}>
-            <div className="px-4 md:px-12 pt-24 space-y-8">
+            <div className="px-4 md:px-12 pt-36 md:pt-28 space-y-8">
               <div>
                 <h1 className="mb-2">All Courses</h1>
                 <p className="text-gray-400">all courses based on category</p>
@@ -1733,7 +1752,7 @@ export default function App() {
 
           {mountedViews.has('reels') && (
           <div className={currentView === 'reels' ? 'block' : 'hidden'} aria-hidden={currentView !== 'reels'}>
-            <div className="px-4 md:px-12 pt-24 pb-12 min-h-screen overflow-hidden">
+            <div className="px-4 md:px-12 pt-36 md:pt-28 pb-12 min-h-screen overflow-hidden">
               <div className="mb-8">
                 <h1 className="mb-2">Reels</h1>
                 <p className="text-gray-400">Quick lessons and highlights</p>
@@ -1751,7 +1770,7 @@ export default function App() {
 
           {
             currentView === 'my-learning' && (
-              <div className="px-4 md:px-12 pt-24 animate-fadeIn">
+              <div className="px-4 md:px-12 pt-36 md:pt-28 animate-fadeIn">
                 <div className="mb-8">
                   <h1 className="mb-2">My Learning</h1>
                   <p className="text-gray-400">Continue from where you left off</p>
