@@ -154,7 +154,7 @@ const SpeakersTab = ({ userPackage, onCourseClick, courses }: { userPackage: str
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-10 px-4 md:px-8 animate-fadeIn">
+    <div className="min-h-screen pb-10 px-4 md:px-8 animate-fadeIn">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl md:text-5xl font-bold text-center mb-4 text-white tracking-tight">Meet Our Mentors</h1>
         <p className="text-white/70 text-center mb-12 max-w-2xl mx-auto leading-relaxed text-base md:text-lg">

@@ -33,7 +33,38 @@ export function Header({
 }: HeaderProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
   const profile = userProfile || FALLBACK_PROFILE;
+
+  const navItems = [
+    { name: 'Home', value: 'home', icon: Home },
+    { name: 'Courses', value: 'courses', icon: BookOpen },
+    { name: 'Reels', value: 'reels', icon: Film },
+    { name: 'Speakers', value: 'speakers', icon: GraduationCap },
+    { name: 'My Learning', value: 'my-learning', icon: GraduationCap },
+    ...(profile.role === 'admin' ? [{ name: 'Admin', value: 'admin', icon: Settings }] : []),
+  ];
+
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header) return;
+
+    const updateHeaderHeight = () => {
+      const height = header.getBoundingClientRect().height;
+      document.documentElement.style.setProperty('--app-header-height', `${Math.ceil(height)}px`);
+    };
+
+    updateHeaderHeight();
+
+    const resizeObserver = new ResizeObserver(updateHeaderHeight);
+    resizeObserver.observe(header);
+    window.addEventListener('resize', updateHeaderHeight);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', updateHeaderHeight);
+    };
+  }, [profile.role, navItems.length]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -46,17 +77,11 @@ export function Header({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const navItems = [
-    { name: 'Home', value: 'home', icon: Home },
-    { name: 'Courses', value: 'courses', icon: BookOpen },
-    { name: 'Reels', value: 'reels', icon: Film },
-    { name: 'Speakers', value: 'speakers', icon: GraduationCap },
-    { name: 'My Learning', value: 'my-learning', icon: GraduationCap },
-    ...(profile.role === 'admin' ? [{ name: 'Admin', value: 'admin', icon: Settings }] : []),
-  ];
-
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 bg-gradient-to-b from-[#002147]/90 to-transparent">
+    <header
+      ref={headerRef}
+      className="fixed top-0 left-0 right-0 z-40 bg-gradient-to-b from-[#002147]/90 to-transparent"
+    >
       <div className="flex items-center justify-between px-4 py-6 md:px-12">
         <div className="flex min-w-0 flex-1 items-center gap-6 lg:gap-12">
           <div className="flex shrink-0 items-center">

@@ -175,7 +175,7 @@ export function AdminAnalyticsDashboard() {
   const storage = analyticsData.storage;
 
   return (
-    <div className="px-4 md:px-8 lg:px-12 pt-24 pb-12 space-y-6">
+    <div className="px-4 md:px-8 lg:px-12 pb-12 space-y-6">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
