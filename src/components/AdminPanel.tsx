@@ -1055,7 +1055,7 @@ export function AdminPanel({ courses, setCourses, reels, setReels, onCreateReel 
   };
 
   return (
-    <div className="px-4 md:px-8 lg:px-12 pt-24 pb-12">
+    <div className="px-4 md:px-8 lg:px-12 pb-12">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

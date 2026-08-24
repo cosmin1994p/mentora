@@ -1651,7 +1651,7 @@ export default function App() {
           onNotificationsClick={() => setShowNotifications(true)}
         />
 
-        <main className="pb-8">
+        <main className="app-main-offset pb-8">
           {currentView === 'home' && (
             <div>
               <Hero onPlayClick={handleCoursePlay} onInfoClick={handleCourseClick} courses={heroCourses} />
@@ -1730,7 +1730,7 @@ export default function App() {
 
           {mountedViews.has('courses') && (
           <div className={currentView === 'courses' ? 'block' : 'hidden'} aria-hidden={currentView !== 'courses'}>
-            <div className="px-4 md:px-12 pt-36 md:pt-28 space-y-8">
+            <div className="px-4 md:px-12 space-y-8">
               <div>
                 <h1 className="mb-2">All Courses</h1>
                 <p className="text-gray-400">all courses based on category</p>
@@ -1752,7 +1752,7 @@ export default function App() {
 
           {mountedViews.has('reels') && (
           <div className={currentView === 'reels' ? 'block' : 'hidden'} aria-hidden={currentView !== 'reels'}>
-            <div className="px-4 md:px-12 pt-36 md:pt-28 pb-12 min-h-screen overflow-hidden">
+            <div className="px-4 md:px-12 pb-12 min-h-screen overflow-hidden">
               <div className="mb-8">
                 <h1 className="mb-2">Reels</h1>
                 <p className="text-gray-400">Quick lessons and highlights</p>
@@ -1770,7 +1770,7 @@ export default function App() {
 
           {
             currentView === 'my-learning' && (
-              <div className="px-4 md:px-12 pt-36 md:pt-28 animate-fadeIn">
+              <div className="px-4 md:px-12 animate-fadeIn">
                 <div className="mb-8">
                   <h1 className="mb-2">My Learning</h1>
                   <p className="text-gray-400">Continue from where you left off</p>

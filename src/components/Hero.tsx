@@ -11,7 +11,7 @@ export function Hero({ onPlayClick, onInfoClick, courses }: HeroProps) {
   const featuredCourse = courses[0];
 
   return (
-    <section className="relative min-h-[88svh] overflow-hidden bg-[#002147] md:min-h-[92svh]">
+    <section className="hero-header-bleed relative min-h-[88svh] overflow-hidden bg-[#002147] md:min-h-[92svh]">
       <div className="absolute inset-0 bg-[#002147]">
         {featuredCourse?.thumbnail ? (
           <img
@@ -32,8 +32,7 @@ export function Hero({ onPlayClick, onInfoClick, courses }: HeroProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-[#002147] via-transparent to-transparent" />
       </div>
 
-      {/* pt clears fixed header; content sits in lower area like before */}
-      <div className="relative flex min-h-[88svh] flex-col justify-end px-4 pb-16 pt-36 md:min-h-[92svh] md:px-12 md:pb-24 md:pt-28">
+      <div className="relative flex min-h-[88svh] flex-col justify-end px-4 pb-16 md:min-h-[92svh] md:px-12 md:pb-24">
         <div className="max-w-2xl">
           {featuredCourse ? (
             <>
