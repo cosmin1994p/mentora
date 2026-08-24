@@ -11,7 +11,7 @@ export function Hero({ onPlayClick, onInfoClick, courses }: HeroProps) {
   const featuredCourse = courses[0];
 
   return (
-    <section className="relative min-h-[100svh] overflow-hidden bg-[#002147]">
+    <section className="relative min-h-[88svh] overflow-hidden bg-[#002147] md:min-h-[92svh]">
       <div className="absolute inset-0 bg-[#002147]">
         {featuredCourse?.thumbnail ? (
           <img
@@ -33,11 +33,13 @@ export function Hero({ onPlayClick, onInfoClick, courses }: HeroProps) {
       </div>
 
       {/* pt clears fixed header; content sits in lower area like before */}
-      <div className="relative flex min-h-[100svh] flex-col justify-end px-4 pb-28 pt-36 md:px-12 md:pb-36 md:pt-28">
+      <div className="relative flex min-h-[88svh] flex-col justify-end px-4 pb-16 pt-36 md:min-h-[92svh] md:px-12 md:pb-24 md:pt-28">
         <div className="max-w-2xl">
           {featuredCourse ? (
             <>
-              <h1 className="mb-6 text-shadow-netflix">{featuredCourse.title}</h1>
+              <h1 className="mb-4 text-3xl font-bold leading-tight text-shadow-netflix md:mb-6 md:text-5xl lg:text-6xl">
+                {featuredCourse.title}
+              </h1>
 
               <div className="mb-6 flex flex-wrap items-center gap-4 text-lg">
                 <span className="font-semibold text-[#FF5530]">{(featuredCourse.rating * 20).toFixed(0)}% Match</span>
@@ -46,7 +48,7 @@ export function Hero({ onPlayClick, onInfoClick, courses }: HeroProps) {
                 <span className="border border-gray-400 px-2 py-0.5 text-sm">HD</span>
               </div>
 
-              <p className="mb-8 max-w-xl text-lg leading-relaxed text-white text-shadow-netflix">
+              <p className="mb-6 max-w-xl text-base leading-relaxed text-white text-shadow-netflix md:mb-8 md:text-lg">
                 {featuredCourse.description}
               </p>
 

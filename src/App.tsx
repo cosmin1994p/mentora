@@ -1655,7 +1655,7 @@ export default function App() {
           {currentView === 'home' && (
             <div>
               <Hero onPlayClick={handleCoursePlay} onInfoClick={handleCourseClick} courses={heroCourses} />
-              <div className="px-4 md:px-12 space-y-8 -mt-32 relative z-10">
+              <div className="relative z-10 space-y-10 px-4 pt-10 md:space-y-12 md:px-12 md:pt-14">
                 {visibleRecommended.length > 0 && (
                   <CourseGrid
                     title="Recommended For You"
